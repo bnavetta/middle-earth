@@ -1,0 +1,6 @@
+.terraform/
+.env
+.direnv/
+result
+terraform.tfstate
+terraform.tfstate.backup
