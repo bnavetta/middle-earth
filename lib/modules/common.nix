@@ -77,4 +77,11 @@ in
 
   # Globally install some common tools for debugging in case things are _so_ broken that I can't get a nix-shell running :)
   environment.systemPackages = with pkgs; [ vim btop htop atop lsof ripgrep ];
+
+  # Disable documentation generation to save space
+  # Unlike documentation.enable = false, this keeps man pages
+  documentation.dev.enable = false;
+  documentation.doc.enable = false;
+  documentation.info.enable = false;
+  documentation.nixos.enable = false;
 }
