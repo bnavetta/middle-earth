@@ -7,8 +7,7 @@
   system.autoUpgrade = {
     enable = true;
     allowReboot = true;
-    # flake = self.outPath;
-    flake = "git+ssh://git@github.com/bnavetta/middle-earth-infra.git?ref=next";
+    flake = "git+ssh://git@github.com/bnavetta/middle-earth.git";
     flags = [
       "--show-trace"
       "-L"
