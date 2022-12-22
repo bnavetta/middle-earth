@@ -6,6 +6,11 @@
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.deploy-rs.url = "github:serokell/deploy-rs";
 
+  inputs.nixos-generators = {
+    url = "github:nix-community/nixos-generators";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   inputs.agenix = {
     url = "github:ryantm/agenix";
     inputs.nixpkgs.follows = "nixpkgs";
@@ -26,27 +31,25 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, flake-utils, deploy-rs, agenix, wedding-website, home-manager, ... }:
+  outputs = { self, nixpkgs, nixos-hardware, nixos-generators, flake-utils, deploy-rs, agenix, wedding-website, home-manager, ... }:
     let
       inherit (nixpkgs.lib) filterAttrs nixosSystem;
       inherit (builtins) readDir readFile mapAttrs;
 
-      # Function to produce a NixOS system
-      mkSystem = name: config:
+      # Produces a root NixOS module that encapsulates all the config for a system. This module can be used to either build a system (with `nixosSystem`)
+      # or build a disk image (using `nixosGenerate`).
+      mkRootModule = name: config:
         let
-          sysModules = builtins.filter builtins.pathExists [ ./hosts/${name}/hardware-configuration.nix ./hosts/${name}/networking.nix ];
           extraModules = if config ? extraModules then config.extraModules else [ ];
         in
-        nixosSystem rec {
-          system = config.system;
-
-          modules = [
+        {
+          imports = [
             ./lib/modules/common.nix
             ./lib/modules/containers.nix
+            ./lib/modules/auto-update.nix
             agenix.nixosModule
             home-manager.nixosModules.home-manager
-            ./lib/modules/auto-update.nix
-            ({ ... }: {
+            {
               networking.hostName = if config ? hostname then config.hostname else name;
               system = {
                 stateVersion = config.stateVersion;
@@ -57,8 +60,8 @@
               # See https://www.tweag.io/blog/2020-07-31-nixos-flakes/
               # This pins nixpkgs to the version the system was built with
               nix.registry.nixpkgs.flake = nixpkgs;
-            })
-          ] ++ extraModules ++ sysModules;
+            }
+          ] ++ extraModules;
         };
 
 
@@ -72,7 +75,16 @@
     in
     {
       # Create NixOS configurations and deploy-rs nodes for each host
-      nixosConfigurations = mapAttrs mkSystem hosts;
+      nixosConfigurations = mapAttrs
+        (name: config:
+          # Only include hardware configuration for NixOS configs, not when producing disk images
+          let sysModules = builtins.filter builtins.pathExists [ ./hosts/${name}/hardware-configuration.nix ./hosts/${name}/networking.nix ]; in
+          nixosSystem
+            {
+              system = config.system;
+              modules = [ (mkRootModule name config) ] ++ sysModules;
+            })
+        hosts;
 
       deploy.nodes = mapAttrs
         (name: config: {
@@ -82,11 +94,18 @@
             sshUser = "root";
             path = deploy-rs.lib.${config.system}.activate.nixos self.nixosConfigurations.${name};
           };
-          # Nix can't cross-build, so build on the remote system if it's not compatible with the deploy machine
-          # https://discourse.nixos.org/t/problem-with-remote-building-on-different-architecture/11446/2
-          # remoteBuild = config.system != flake-utils.lib.system.x86_64-linux;
         })
         hosts;
+
+      packages.x86_64-linux.luthien-image =
+        let
+          config = hosts.luthien; in
+        nixos-generators.nixosGenerate
+          {
+            system = config.system;
+            modules = [ (mkRootModule "luthien" config) ];
+            format = "do";
+          };
 
       # Checks don't work with remote builds https://github.com/serokell/deploy-rs/issues/167#issuecomment-1326841159
       # checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;

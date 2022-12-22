@@ -3,6 +3,7 @@
   system = flake-utils.lib.system.aarch64-linux;
 
   extraModules = [
+    ./wifi.nix
     ./home-assistant.nix
     flakes.nixos-hardware.nixosModules.raspberry-pi-4
     {
