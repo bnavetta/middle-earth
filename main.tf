@@ -142,6 +142,8 @@ resource "digitalocean_record" "wedding_website_www" {
   value  = "@"
 }
 
+# TODO: also main domain DNS (but need to keep mail)
+
 # Bot keys for private repos accessed by Nix
 resource "github_user_ssh_key" "luthien_machine_key" {
   title = "Access key for Luthien"
