@@ -125,11 +125,11 @@
         "utils": "utils_2"
       },
       "locked": {
-        "lastModified": 1672688183,
-        "narHash": "sha256-3sNEWKTg3XXVDnvzVatdyetiUQWL+ibJ1YkvxSk3PuM=",
+        "lastModified": 1673089714,
+        "narHash": "sha256-D58SGNOVe+s7r2iewnCA8q68gyrfQcOnD1TdJo1wFLY=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "c1a830c8fabb13f95f51ecf48552f0a794d8718a",
+        "rev": "9e565f0d9d41c19a94f55af205c328ec5177fc0a",
         "type": "github"
       },
       "original": {
@@ -147,11 +147,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1666256523,
-        "narHash": "sha256-MSzf6kYKW+QCtPyPp4/pgYMTh6F1Yf9mnfiFX360RpM=",
+        "lastModified": 1672245824,
+        "narHash": "sha256-i596lbPiA/Rfx3DiJiCluxdgxWY7oGSgYMT7OmM+zik=",
         "owner": "nix-community",
         "repo": "napalm",
-        "rev": "61f33f63fbab96e42d4537776091945939ea1a85",
+        "rev": "7c25a05cef52dc405f4688422ce0046ca94aadcf",
         "type": "github"
       },
       "original": {
@@ -198,11 +198,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1671355134,
-        "narHash": "sha256-ZtnUWTDDyFog+NQBjZpnhgPdj3gHp5ImxFVWy+ObNno=",
+        "lastModified": 1672682641,
+        "narHash": "sha256-940TLvtdT8YKuP5nXcPhUfNeK0A/leSjjG8hfqvWM84=",
         "owner": "nix-community",
         "repo": "nixos-generators",
-        "rev": "64a96ca8621d03cb3889daf0d3ff58d8209e3e0c",
+        "rev": "30516cb2b01896e14ce66893e414b6e3eec71cac",
         "type": "github"
       },
       "original": {
@@ -244,11 +244,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1672633908,
-        "narHash": "sha256-sP0BMp4DprVCBjcTYPsTPwkJMsc45vM0FxHdDx6qE8U=",
+        "lastModified": 1672997035,
+        "narHash": "sha256-DNaNjsGMRYefBTAxFIrVOB2ok477cj1FTpqnu/mKRf4=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "a4379d2b0deefedc8dba360897557707ea9ee9a7",
+        "rev": "f1ffcf798e93b169321106a4aef79526a2b4bd0a",
         "type": "github"
       },
       "original": {
@@ -311,11 +311,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1670860403,
-        "narHash": "sha256-WEPbVWtGq/sJz0zuKU0wxxP2ALGU2QtUhojwxoJpvks=",
+        "lastModified": 1673125629,
+        "narHash": "sha256-p7Kl/hH2kwVK8VSAbnL3s4ssnWekF1NEY5XKeBaKCOk=",
         "ref": "main",
-        "rev": "a8a96ad38df5d403ad3f4744ee26bd93845ca6e3",
-        "revCount": 27,
+        "rev": "83461c165d09ce16ba80e94b464de02d360ffe95",
+        "revCount": 30,
         "type": "git",
         "url": "ssh://git@github.com/bnavetta/follettnavetta.wedding.git"
       },

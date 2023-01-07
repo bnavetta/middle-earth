@@ -12,7 +12,7 @@ in
         middle-earth.services.wedding-website = {
           enable = true;
           enableACME = true;
-          forceTLS = false;
+          forceTLS = true;
         };
       })
     "${localModules}/digitalocean"
