@@ -3,6 +3,7 @@
     "agenix": {
       "inputs": {
         "nixpkgs": [
+          "ragenix",
           "nixpkgs"
         ]
       },
@@ -104,6 +105,21 @@
     },
     "flake-utils_3": {
       "locked": {
+        "lastModified": 1667395993,
+        "narHash": "sha256-nuEHfE/LcWyuSWnS8t12N1wc105Qtau+/OdUAjtQ0rA=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "5aed5285a952e0b949eb3ba02c12fa4fcfef535f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils_4": {
+      "locked": {
         "lastModified": 1659877975,
         "narHash": "sha256-zllb8aq3YO3h8B/U0/J1WBgAL8EX5yWf5pMj3G0NAmc=",
         "owner": "numtide",
@@ -140,7 +156,7 @@
     },
     "napalm": {
       "inputs": {
-        "flake-utils": "flake-utils_3",
+        "flake-utils": "flake-utils_4",
         "nixpkgs": [
           "wedding-website",
           "nixpkgs"
@@ -258,9 +274,31 @@
         "type": "github"
       }
     },
-    "root": {
+    "ragenix": {
       "inputs": {
         "agenix": "agenix",
+        "flake-utils": "flake-utils_2",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1673786180,
+        "narHash": "sha256-5tu71eDtQVmVUorho/GKaCzr4cdmNpvG8ZYxMhDCVKY=",
+        "owner": "yaxitech",
+        "repo": "ragenix",
+        "rev": "92248738a21db5687744d9e7796cf2433b96a7a5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yaxitech",
+        "repo": "ragenix",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
         "deploy-rs": "deploy-rs",
         "flake-compat": "flake-compat_2",
         "flake-utils": "flake-utils",
@@ -268,7 +306,33 @@
         "nixos-generators": "nixos-generators",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
+        "ragenix": "ragenix",
         "wedding-website": "wedding-website"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "flake-utils": [
+          "ragenix",
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "ragenix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1673662873,
+        "narHash": "sha256-/YOtiDKPUXKKpIhsAds11llfC42ScGW27bbHnNZebco=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "90163bbbadce526f8b248a5fe545b06c59597108",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
       }
     },
     "utils": {
@@ -303,7 +367,7 @@
     },
     "wedding-website": {
       "inputs": {
-        "flake-utils": "flake-utils_2",
+        "flake-utils": "flake-utils_3",
         "napalm": "napalm",
         "nix-filter": "nix-filter",
         "nixpkgs": [

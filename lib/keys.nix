@@ -1,4 +1,4 @@
-{
+with builtins; {
   users = {
     ben = {
       # RSA SSH keys stored in a YubiKey's PIV applet can't be used with age-plugin-yubikey: https://github.com/str4d/age-plugin-yubikey/issues/62
@@ -8,5 +8,5 @@
     };
   };
 
-  hosts = builtins.mapAttrs (name: _: builtins.readFile ../hosts/${name}/ssh_pubkey) (builtins.readDir ../hosts);
+  systems = mapAttrs (_: sys: sys.keys) (import ./systems.nix);
 }

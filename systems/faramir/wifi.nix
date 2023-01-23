@@ -5,7 +5,7 @@
     fallbackDns = [ "1.1.1.1#cloudflare-dns.com" "9.9.9.9#dns.quad9.net" "8.8.8.8#dns.google" "2606:4700:4700::1111#cloudflare-dns.com" "2620:fe::9#dns.quad9.net" "2001:4860:4860::8888#dns.google" ];
   };
 
-  age.secrets.faramir_wireless.file = ../../secrets/host/faramir/wireless.age;
+  age.secrets.faramir_wireless.file = ./secrets/wireless.age;
 
   networking.wireless = {
     enable = true;

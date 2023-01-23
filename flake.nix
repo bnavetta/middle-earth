@@ -11,8 +11,8 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  inputs.agenix = {
-    url = "github:ryantm/agenix";
+  inputs.ragenix = {
+    url = "github:yaxitech/ragenix";
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
@@ -31,10 +31,10 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, nixos-generators, flake-utils, deploy-rs, agenix, wedding-website, home-manager, ... }:
+  outputs = { self, nixpkgs, nixos-hardware, nixos-generators, flake-utils, deploy-rs, ragenix, wedding-website, home-manager, ... }:
     let
       inherit (nixpkgs.lib) filterAttrs nixosSystem;
-      inherit (builtins) readDir readFile mapAttrs;
+      inherit (builtins) readDir readFile mapAttrs filter pathExists hasAttr;
 
       # Produces a root NixOS module that encapsulates all the config for a system. This module can be used to either build a system (with `nixosSystem`)
       # or build a disk image (using `nixosGenerate`).
@@ -47,14 +47,14 @@
             ./lib/modules/common.nix
             ./lib/modules/containers.nix
             ./lib/modules/auto-update.nix
-            agenix.nixosModule
+            ragenix.nixosModules.age
             home-manager.nixosModules.home-manager
             {
               networking.hostName = if config ? hostname then config.hostname else name;
               system = {
                 stateVersion = config.stateVersion;
                 # Bake the repository's git revision into the system
-                configurationRevision = self.sourceInfo.rev;
+                configurationRevision = if (hasAttr "rev" self.sourceInfo) then self.sourceInfo.rev else "dirty";
               };
 
               # See https://www.tweag.io/blog/2020-07-31-nixos-flakes/
@@ -65,26 +65,26 @@
         };
 
 
-      hosts = mapAttrs
-        (name: typ: assert typ == "directory"; import ./hosts/${name} {
+      systems = mapAttrs
+        (name: sys: sys.loadConfig {
           localModules = ./lib/modules;
           flakes = { inherit wedding-website nixos-hardware; };
           inherit flake-utils;
         })
-        (readDir ./hosts);
+        (import ./lib/systems.nix);
     in
     {
       # Create NixOS configurations and deploy-rs nodes for each host
       nixosConfigurations = mapAttrs
         (name: config:
           # Only include hardware configuration for NixOS configs, not when producing disk images
-          let sysModules = builtins.filter builtins.pathExists [ ./hosts/${name}/hardware-configuration.nix ./hosts/${name}/networking.nix ]; in
+          let sysModules = filter pathExists [ ./systems/${name}/hardware-configuration.nix ./systems/${name}/networking.nix ]; in
           nixosSystem
             {
               system = config.system;
               modules = [ (mkRootModule name config) ] ++ sysModules;
             })
-        hosts;
+        systems;
 
       deploy.nodes = mapAttrs
         (name: config: {
@@ -95,11 +95,11 @@
             path = deploy-rs.lib.${config.system}.activate.nixos self.nixosConfigurations.${name};
           };
         })
-        hosts;
+        systems;
 
       packages.x86_64-linux.luthien-image =
         let
-          config = hosts.luthien; in
+          config = systems.luthien; in
         nixos-generators.nixosGenerate
           {
             system = config.system;
@@ -116,12 +116,13 @@
       {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
+            age
             terraform
             age-plugin-yubikey
 
             deploy-rs.packages.${system}.deploy-rs
 
-            agenix.defaultPackage.${system}
+            ragenix.packages.${system}.default
           ];
         };
 

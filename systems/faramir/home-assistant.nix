@@ -1,5 +1,5 @@
 { pkgs, config, ... }: {
-  age.secrets.zwave_js_ui.file = ../../secrets/zwave_js_ui.age;
+  age.secrets.zwave_js_ui.file = ./secrets/zwave_js_ui.age;
 
   # Ensure this directory exists so that HA can start. It may still require manual configuration (TODO: automate better)
   systemd.tmpfiles.rules = [
@@ -8,7 +8,7 @@
 
   # Expose Home Assistant locally for the iOS app (and ZWave JS for debugging)
   networking.firewall.allowedTCPPorts = [ 8123 8091 ];
-  
+
   # Allow SSDP (the service discovery protocol used by UPnP, particularly for WeMo devices)
   # See https://discourse.nixos.org/t/ssdp-firewall-support/17809 and https://serverfault.com/a/911286/9166
   networking.firewall.extraPackages = [ pkgs.ipset ];
