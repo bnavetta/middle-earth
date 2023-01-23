@@ -10,10 +10,10 @@ let
       keys =
         let
           ssh = map (keyName: readFile "${dir}/host_ssh_keys/${keyName}") (attrNames (readDir "${dir}/host_ssh_keys"));
-          age = if pathExists "${dir}/age-identity.txt" then [ readFile "${dir}/age-identity.txt" ] else [ ];
+          age = if pathExists "${dir}/age-identity.txt" then [ (readFile "${dir}/age-identity.txt") ] else [ ];
         in
         {
-          inherit ssh; inherit age; all = ssh ++ age;
+          inherit ssh; inherit age; default = if age == [ ] then ssh else age;
         };
       loadConfig = args: import "${dir}" args;
     };

@@ -6,16 +6,20 @@ let
   # Admin users with access to all secrets
   admins = [ keys.users.ben.age ];
 
+  defaultSecrets = [ "pass.age" ];
+  addDefaultSecrets = secrets: foldl' (acc: secret: if elem secret secrets then acc else acc ++ [ secret ]) secrets defaultSecrets;
+
   # Build system-specific secrets
   mkSystemSecrets = system:
     let
-      secretNames = if pathExists "${system.root}/secrets" then attrNames (readDir "${system.root}/secrets") else [ ];
+      # Ensure there's always a rule for pass.age, to aid in bootstrapping
+      secretNames = if pathExists "${system.root}/secrets" then addDefaultSecrets (attrNames (readDir "${system.root}/secrets")) else defaultSecrets;
       secrets = map
         (name: {
           # This can't be a store path, it has to be the relative path
           name = "systems/${system.name}/secrets/${name}";
           value = {
-            publicKeys = admins ++ system.keys.all;
+            publicKeys = admins ++ system.keys.default;
           };
         })
         secretNames;
@@ -24,7 +28,7 @@ let
 
   systemSecrets = foldl' (a: b: a // b) { } (map mkSystemSecrets (attrValues systems));
 
-  allSystemKeys = foldl' (acc: sys: acc ++ sys.all) [ ] (attrValues keys.systems);
+  allSystemKeys = foldl' (acc: sys: acc ++ sys.default) [ ] (attrValues keys.systems);
 in
 systemSecrets // {
   "secrets/sysadmin_password.age".publicKeys = admins ++ allSystemKeys;
