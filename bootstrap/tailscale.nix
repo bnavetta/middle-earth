@@ -1,14 +1,13 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   services.tailscale.enable = true;
 
   systemd.services.tailscale-autoconnect = {
     description = "Automatic connection to Tailscale";
-    after = [ "network-pre.target" "tailscale.service" ];
-    wants = [ "network-pre.target" "tailscale.service" ];
-    wantedBy = [ "multi-user.target" ];
+    after = ["network-pre.target" "tailscale.service"];
+    wants = ["network-pre.target" "tailscale.service"];
+    wantedBy = ["multi-user.target"];
     serviceConfig.Type = "oneshot";
-    path = with pkgs; [ jq tailscale ];
+    path = with pkgs; [jq tailscale];
     script = ''
       sleep 2
       status="$(tailscale status -json | jq -r .BackendState)"

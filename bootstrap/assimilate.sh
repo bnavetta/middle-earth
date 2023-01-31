@@ -8,7 +8,7 @@ USAGE() {
     exit 2
 }
 
-if [[ -z "$1" || -z "$2" ]]; then
+if [[ -z $1 || -z $2 ]]; then
     USAGE
 fi
 
@@ -31,11 +31,10 @@ scp_victim() {
 
 # Set up the config tree for the victim
 mkdir -p "./hosts/$server_name"
-echo "$public_ip" > "./hosts/$server_name/public-ip"
+echo "$public_ip" >"./hosts/$server_name/public-ip"
 
 # Not using ssh_victim because we want Tailscale SSH
-until ssh_ignore "root@$server_name" uname -av
-do sleep 30; done
+until ssh_ignore "root@$server_name" uname -av; do sleep 30; done
 
 # Copy over the host's auto-detected hardware config and SSH key
 scp_victim "/etc/nixos/hardware-configuration.nix" "./hosts/$server_name" || :
@@ -45,7 +44,7 @@ scp_victim "/etc/ssh/ssh_host_ed25519_key.pub" "./hosts/$server_name/ssh_pubkey"
 # Write out a host-specific NixOS module
 # The root flake configuration will combine this with shared setup
 rm -f "./hosts/$server_name/default.nix"
-cat <<-EOC > "./hosts/$server_name/default.nix"
+cat <<-EOC >"./hosts/$server_name/default.nix"
 { ... }: {
     stateVersion = "23.05";
 }

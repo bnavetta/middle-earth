@@ -1,0 +1,3 @@
+{...}: {
+  # TODO: opinionated ZSH setup
+}

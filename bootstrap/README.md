@@ -8,10 +8,10 @@ To bootstrap a non-Terraform system:
 2. Set up Tailscale by configuring the system with `services.tailscale.enable = true;` and pre-authenticating with an [auth key](https://tailscale.com/kb/1085/auth-keys/).
    This configuration _should_ stick around after the host is managed.
 3. Create the `./hosts/$server` directory tree:
-   * `default.nix` - host configuration, see existing examples
-   * `hardware-configuration.nix` and `networking.nix`, if generated when installing NixOS
-   * `public-ip` - text file with the host's IP address (must be accessible to the deploy machine)
-   * `ssh_pubkey` - text file with the host's SSH key, from `/etc/ssh/ssh_host_ed25519_key.pub`
+   - `default.nix` - host configuration, see existing examples
+   - `hardware-configuration.nix` and `networking.nix`, if generated when installing NixOS
+   - `public-ip` - text file with the host's IP address (must be accessible to the deploy machine)
+   - `ssh_pubkey` - text file with the host's SSH key, from `/etc/ssh/ssh_host_ed25519_key.pub`
 4. Commit all changes
 5. Deploy to the system by running `just deploy $server`
 

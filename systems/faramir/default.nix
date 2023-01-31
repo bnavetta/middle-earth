@@ -1,4 +1,9 @@
-{ localModules, flake-utils, flakes, ... }: {
+{
+  localModules,
+  flake-utils,
+  flakes,
+  ...
+}: {
   stateVersion = "23.05";
   system = flake-utils.lib.system.aarch64-linux;
 
@@ -16,12 +21,15 @@
         nssmdns = true;
         ipv4 = true;
         ipv6 = true;
-        publish = { enable = true; addresses = true; workstation = true; };
+        publish = {
+          enable = true;
+          addresses = true;
+          workstation = true;
+        };
       };
 
-
       # Allow SSH on all interfaces, not just tailscale
-      networking.firewall.allowedTCPPorts = [ 22 ];
+      networking.firewall.allowedTCPPorts = [22];
     }
   ];
 }

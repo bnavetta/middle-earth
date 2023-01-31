@@ -6,8 +6,8 @@ The bootstrapping is based on [this blog post from Xe Iaso](https://xeiaso.net/b
 
 All devices are named after characters from Lord of the Rings:
 
-* luthien - a small VPS on DigitalOcean. Mostly just runs Nginx to proxy for Home Assistant and a few static websites
-* faramir - a Raspberry Pi running Home Assistant
+- luthien - a small VPS on DigitalOcean. Mostly just runs Nginx to proxy for Home Assistant and a few static websites
+- faramir - a Raspberry Pi running Home Assistant
 
 They're all connected via Tailscale (setup isn't quite as automated as it could be, but probably good enough), and assume that it's accessible early on
 for provisioning.

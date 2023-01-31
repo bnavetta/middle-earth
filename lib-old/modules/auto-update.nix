@@ -1,6 +1,5 @@
 # Auto-update configuration
-{ ... }: {
-
+{...}: {
   # See https://www.reddit.com/r/NixOS/comments/negjsu/comment/gyhbrm4/
   # This auto-updates daily, fetching the latest Flake contents from GitHub
   # A GitHub Action automatically updates the Flake lock file, so the next auto-update will pull in new package versions.
@@ -15,7 +14,7 @@
     dates = "daily";
   };
 
-  home-manager.users.root = ({ ... }: {
+  home-manager.users.root = {...}: {
     home.username = "root";
     home.homeDirectory = "/root";
 
@@ -33,5 +32,5 @@
         };
       };
     };
-  });
+  };
 }
