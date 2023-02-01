@@ -8,5 +8,5 @@
 }: {
   system.stateVersion = "23.05";
 
-  imports = suites.base ++ [./hardware-configuration.nix ./networking.nix];
+  imports = suites.server ++ [./hardware-configuration.nix ./networking.nix];
 }

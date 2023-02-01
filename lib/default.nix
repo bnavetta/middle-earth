@@ -6,4 +6,6 @@ in rec {
   # For grouping, create files that take { lib } and import them like so:
   # foo = callLibs ./foo.nix;
   # In configs, these libraries, along with digga.lib and nixpkgs.lib, are available under `lib`
+
+  identities = import ./identities.nix;
 })

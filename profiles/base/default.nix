@@ -6,7 +6,7 @@
   self,
   ...
 }: {
-  imports = [../nix-caches ./users.nix];
+  imports = [./containers.nix ./users.nix ./networking.nix];
 
   age.identityPaths = [
     "/var/lib/age/identity.txt"
@@ -34,6 +34,12 @@
       atop
     ];
   };
+
+  # Baseline settings
+  boot.cleanTmpDir = true;
+  # See https://haydenjames.io/linux-performance-almost-always-add-swap-part2-zram/
+  # zram swap compresses first
+  zramSwap.enable = true;
 
   # TODO: this is only useful on hosts with a display
   fonts.fonts = with pkgs; [apple-emoji];

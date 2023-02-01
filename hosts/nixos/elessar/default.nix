@@ -17,11 +17,8 @@
       common-pc-ssd
     ];
   in
-    suites.base
-    ++ hardwareModules
-    ++ [
-      profiles.secureboot
-    ];
+    suites.desktop
+    ++ hardwareModules;
 
   # TODO: derive disks from partitioner config?
   fileSystems."/" = {

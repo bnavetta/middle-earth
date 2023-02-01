@@ -3,6 +3,5 @@
 in {
   "root.age" = defaultRule;
 
-  "wireless.age" = defaultRule;
   "zwave_js_ui.age" = defaultRule;
 }
