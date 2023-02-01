@@ -12,6 +12,8 @@
     "/var/lib/age/identity.txt"
   ];
 
+  time.timeZone = "America/New_York";
+
   environment = {
     # Core debugging and administration packages I basically always need
     # This also ensures they're available if home-manager and/or nix-shell aren't working

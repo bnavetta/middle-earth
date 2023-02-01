@@ -17,6 +17,7 @@ in {
   ];
 
   packages = with pkgs; [
+    age
     age-plugin-yubikey
     alejandra
     cachix
