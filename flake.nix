@@ -43,7 +43,7 @@
     };
 
     agenix = {
-      url = "github:yaxitech/ragenix";
+      url = "github:bnavetta/ragenix?ref=remove-header-function";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

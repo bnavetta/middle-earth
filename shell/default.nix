@@ -33,7 +33,7 @@ in {
         category = "middle-earth";
         name = "agenix";
         help = "age-encrypted secrets for NixOS";
-        command = "cd $PRJ_ROOT; ${pkgs.ragenix}/bin/agenix --rules=./secrets/secrets.nix $@";
+        command = "cd $PRJ_ROOT; ${pkgs.ragenix}/bin/agenix --rules=./secrets/secrets.nix --identity=./secrets/age-yubikeys/keychain.txt $@";
       }
       {
         category = "middle-earth";
