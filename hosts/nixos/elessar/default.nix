@@ -18,13 +18,14 @@
     ];
   in
     suites.desktop
+    ++ [profiles.secureboot]
     ++ hardwareModules;
 
+  # Must be set for ZFS
+  networking.hostId = "c30a0615";
+
   # TODO: derive disks from partitioner config?
-  fileSystems."/" = {
-    device = "none";
-    fsType = "tmpfs";
-  };
+  middle-earth.state.impermanence = true;
 
   # Tailscale means installer and host can just call back and forth (HTTP, gRPC, etc.) - no need for magic wormhole
   # - installer sends over its public keys

@@ -14,6 +14,7 @@ with builtins; let
     (include "elessar")
     (include "faramir")
     (include "luthien")
+    (include "testvm")
     (with identities; {
       "sysadmin_password.age".publicKeys = admins ++ allHosts;
 

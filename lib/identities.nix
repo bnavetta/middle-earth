@@ -1,4 +1,11 @@
-with builtins; rec {
+with builtins; let
+  notComment = s: stringLength s == 0 || (substring 0 1 s) != "#";
+  ageRecipients = path: let
+    contents = readFile path;
+    lines = filter isString (split "\n" contents);
+  in
+    filter notComment lines;
+in rec {
   # Attrset mapping each host to its age identities
   hosts = fromJSON (readFile ../secrets/identities.json);
 
@@ -16,14 +23,7 @@ with builtins; rec {
         # Backup
         "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAsujdektEsHX/OtFwoE6VVKTafP+q5Azh1O5MVvgPThkUvPKdv0eE4FC3BJCssNsWUHvlCHY3DqzGvKnSLcXnk="
       ];
-      age = [
-        # Original
-        "age1yubikey1q0janequt0yrz9jdzy70en89gw626hfh3amgm404g55q5agev47qvrutcdh"
-        # Keychain
-        "age1yubikey1qv3gtlhmcq0k9rqpr9vl7lvjx5gdk6jmt4tvmf36l2z7unym8d9w2wnplf6"
-        # Backup
-        "age1yubikey1qdupw4lyxf3c9rqn9yltxf0t4z9u0yatsdxv2ymjy7ml558ua3qfxnvkhq3"
-      ];
+      age = ageRecipients ../users/users/ben/age-recipients.txt;
     };
   };
   admins = users.ben.age;

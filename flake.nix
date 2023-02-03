@@ -37,6 +37,10 @@
 
     nur.url = "github:nix-community/NUR";
 
+    impermanence = {
+      url = "github:nix-community/impermanence";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -64,6 +68,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # For running Nix programs with OpenGL outside of NixOS (needed for QEMU virtio-vga-gl)
+    # nixgl.url = "github:guibou/nixGL";
+
     wedding-website = {
       url = "git+ssh://git@github.com/bnavetta/follettnavetta.wedding.git?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -77,6 +84,8 @@
     digga,
     nixpkgs,
     home-manager,
+    impermanence,
+    nixos-generators,
     nixos-hardware,
     nur,
     agenix,
@@ -148,6 +157,7 @@
           };
           luthien = {};
           elessar = {};
+          testvm = {};
         };
 
         # Set up profiles, portable users, and suites
@@ -166,7 +176,7 @@
       # Individual user configurations
       home = {
         imports = [(digga.lib.importExportableModules ./users/modules)];
-        modules = [];
+        # modules = [ impermanence.nixosModules.home-manager ];
         importables = rec {
           profiles = digga.lib.rakeLeaves ./users/profiles;
           suites = import ./users/suites.nix {inherit profiles;};
@@ -185,6 +195,15 @@
       deploy = {
         sshUser = "root";
         nodes = digga.lib.mkDeployNodes self.nixosConfigurations {};
+      };
+    }
+    // {
+      packages.x86_64-linux.testvm = nixos-generators.nixosGenerate {
+        system = "x86_64-linux";
+        modules = [
+          # self.nixosConfigurations.testvm.config
+        ];
+        format = "vm-bootloader";
       };
     };
 

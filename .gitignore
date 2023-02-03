@@ -4,3 +4,4 @@
 result
 terraform.tfstate
 terraform.tfstate.backup
+*.qcow2

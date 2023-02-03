@@ -1,0 +1,23 @@
+# This is an alternate version of .bpb_keys.toml, which the auth.nix profile uses
+# to configure the bpb.nix module
+[public]
+userid = "Ben Navetta <ben.navetta@gmail.com>"
+key = "bda8dbec76ac8a599f98510320efa9dfdecb31c75077d14ea34387721a992118"
+timestamp = "1675357052"
+
+[secret]
+encryptedKey = """
+-----BEGIN AGE ENCRYPTED FILE-----
+YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHBpdi1wMjU2IGlBOE1WQSBBM0FJRGFw
+Qm1WMUlEOWczaWVPOXhHUEFKRXZGRUxGR1RMMndNTXkzWWhrWApZd1dOUG9tTzh6
+VEtLUWxhQWQ5Rjl5MlRmUWt2WjU3Q053MDY5Zzc5ZVhNCi0+IHBpdi1wMjU2IGlm
+Wk42USBBOXZqNUUvaFh6MTE2YnJzM1hBaTdPTXpNZnJHTkRaaUlweERuRFdNRFk5
+ZgowdG90OWxHQWd4T3A3UTlzZkVWUEhtSm1HZzVtcG05bnhpUlFRd2pJWXhnCi0+
+IHBpdi1wMjU2IHpXYWduUSBBOVpuMTBNL3lWdEpxSVlkTFdlZExHTE4ySkhhS0oy
+czhudEZReTVUNEdTcwpXU1hPZWtDK0VLc1dSUXk0N01TdjlDWTJ1dzJLOHNPWWVs
+d21LUk5MaTFJCi0tLSA3R3kvYjJoTGZwTVpaWE1RSWVCNFE3cEpmRVJvM1h3Zjh5
+Q1pEYVVoMnRvCgP2dR9hHZa8MFSSYcFwQFTQFvN+Qfl36oSIDrzLvQtpBsFffbLj
+lC+gOBv/AfzOYoXwe7aCdbn+r4UmW4mtTV1bWRtDfJRiKUvSM8Mt6ECatK9MEKts
+HYhIP7yIr19Wbu0=
+-----END AGE ENCRYPTED FILE-----
+"""

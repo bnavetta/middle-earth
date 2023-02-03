@@ -1,25 +1,44 @@
-# Set up system users
+# Set up system users. If running in the test VM, they will be given static passwords because the VM doesn't have access to agenix secrets.
 {
   config,
   pkgs,
   lib,
   ...
-}: {
-  age.secrets.rootPassword.file = ../../secrets/${config.networking.hostName}/root.age;
+}: let
+  inherit (lib) mkIf mkMerge;
 
-  users.users.root = {
-    passwordFile = config.age.secrets.rootPassword.path;
+  # This is kind of janky - maybe use an option instead?
+  isTestVM = config.networking.hostName == "testvm";
 
-    # openssh.authorizedKeys.keys = identities.users.ben.ssh;
+  coreConfig = {
+    # Also set SSH keys for root?
+    users.users.sysadmin = {
+      isNormalUser = true;
+      extraGroups = ["wheel"];
+      openssh.authorizedKeys.keys = lib.identities.users.ben.ssh;
+    };
   };
 
-  age.secrets.sysadmin_password.file = ../../secrets/sysadmin_password.age;
+  testConfig = {
+    users.users.root.password = "root";
+    users.users.sysadmin.password = "sysadmin";
 
-  # Administrative user to preconfigure on all hosts
-  users.users.sysadmin = {
-    isNormalUser = true;
-    extraGroups = ["wheel"];
-    passwordFile = config.age.secrets.sysadmin_password.path;
-    openssh.authorizedKeys.keys = lib.identities.users.ben.ssh;
+    warnings = [
+      ''
+        Detected a test VM. Using testing passwords instead of agenix-configured ones
+      ''
+    ];
   };
-}
+
+  mainConfig = {
+    age.secrets.rootPassword.file = ../../secrets/${config.networking.hostName}/root.age;
+    age.secrets.sysadminPassword.file = ../../secrets/sysadmin_password.age;
+    users.users.root.passwordFile = config.age.secrets.rootPassword.path;
+    users.users.sysadmin.passwordFile = config.age.secrets.sysadminPassword.path;
+  };
+in
+  mkMerge [
+    coreConfig
+    (mkIf isTestVM testConfig)
+    (mkIf (!isTestVM) mainConfig)
+  ]

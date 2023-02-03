@@ -13,5 +13,25 @@
       "url": "https://github.com/samuelngs/apple-emoji-linux/releases/download/ios-15.4/AppleColorEmoji.ttf"
     },
     "version": "ios-15.4"
+  },
+  "bpb": {
+    "cargoLocks": null,
+    "date": "2018-07-27",
+    "extract": null,
+    "name": "bpb",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "deepClone": false,
+      "fetchSubmodules": false,
+      "leaveDotGit": false,
+      "name": null,
+      "owner": "withoutboats",
+      "repo": "bpb",
+      "rev": "b1ef5ca1d2dea0e2ec0b1616f087f110ea17adfa",
+      "sha256": "sha256-sVfM8tlAsF4uKLxl3g/nSYgOx+znHIdPalSIiCd18o4=",
+      "type": "github"
+    },
+    "version": "b1ef5ca1d2dea0e2ec0b1616f087f110ea17adfa"
   }
 }

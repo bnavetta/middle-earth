@@ -1,3 +1,7 @@
 [apple-emoji]
 src.github = "samuelngs/apple-emoji-linux"
 fetch.url = "https://github.com/samuelngs/apple-emoji-linux/releases/download/$ver/AppleColorEmoji.ttf"
+
+[bpb]
+src.git = "https://github.com/withoutboats/bpb.git"
+fetch.github = "withoutboats/bpb"

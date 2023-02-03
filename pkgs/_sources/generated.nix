@@ -13,4 +13,16 @@
       sha256 = "sha256-CDmtLCzlytCZyMBDoMrdvs3ScHkMipuiXoNfc6bfimw=";
     };
   };
+  bpb = {
+    pname = "bpb";
+    version = "b1ef5ca1d2dea0e2ec0b1616f087f110ea17adfa";
+    src = fetchFromGitHub {
+      owner = "withoutboats";
+      repo = "bpb";
+      rev = "b1ef5ca1d2dea0e2ec0b1616f087f110ea17adfa";
+      fetchSubmodules = false;
+      sha256 = "sha256-sVfM8tlAsF4uKLxl3g/nSYgOx+znHIdPalSIiCd18o4=";
+    };
+    date = "2018-07-27";
+  };
 }

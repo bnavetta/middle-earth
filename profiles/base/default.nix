@@ -24,6 +24,7 @@
       dnsutils
       fd
       exa
+      hwinfo
       git
       jq
       manix
@@ -67,14 +68,13 @@
       options = "--delete-older-than 30d";
     };
 
-    # Digga recommends these:
-    # See if I want keep-outputs/keep-derivations or not
-    # extraOptions = ''
-    #   min-free = 536870912
-    #   keep-outputs = true
-    #   keep-derivations = true
-    #   fallback = true
-    # '';
+    # This keeps nix shells from getting garbage-collected
+    extraOptions = ''
+      #min-free = 536870912
+      keep-outputs = true
+      keep-derivations = true
+      fallback = true
+    '';
   };
 
   # To save space and time, don't generate documentation that I won't use,

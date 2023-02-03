@@ -28,8 +28,8 @@
   };
 
   # Wait for WiFi and Ethernet to come online, but not Tailscale or container networks
-  systemd.network.wait-online.extraArgs = [
-    "--interface=end0"
-    "--interface=wlan0"
+  middle-earth.networking.expectedInterfaces = [
+    "end0"
+    "wlan0"
   ];
 }

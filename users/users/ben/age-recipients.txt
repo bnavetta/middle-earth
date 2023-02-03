@@ -1,0 +1,10 @@
+#       Serial: 15266421, Slot: 1
+#         Name: bnavetta key1
+#      Created: Thu, 02 Feb 2023 15:09:37 +0000
+#   PIN policy: Once   (A PIN is required once per session, if set)
+# Touch policy: Cached (A physical touch is required for decryption, and is cached for 15 seconds)
+age1yubikey1qv3gtlhmcq0k9rqpr9vl7lvjx5gdk6jmt4tvmf36l2z7unym8d9w2wnplf6
+# Original
+age1yubikey1q0janequt0yrz9jdzy70en89gw626hfh3amgm404g55q5agev47qvrutcdh
+# Backup
+age1yubikey1qdupw4lyxf3c9rqn9yltxf0t4z9u0yatsdxv2ymjy7ml558ua3qfxnvkhq3
