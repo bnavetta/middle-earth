@@ -74,14 +74,6 @@ in {
         category = "testvm";
         name = "testvm-run";
         help = "Run the `testvm` configuration in a QEMU VM";
-        # command = ''
-        #   nixos-generate --flake '.#testvm' \
-        #     --format vm-bootloader --out-link testvm && \
-        #   sudo testvm/bin/run-testvm-vm \
-        #     -vga none \
-        #     -device virtio-vga-gl \
-        #     -display gtk,gl=on \
-        #     -netdev bridge,id=tnet0,br=virbr0 -device virtio-net-pci,netdev=tnet0 $@'';
         command = ''
           ${glWrapper} nixos-generate --flake '.#testvm' --format vm-bootloader --run
         '';
@@ -103,15 +95,9 @@ in {
 
       {
         category = "testvm";
-        name = "mknet";
-        help = "Create a bridge network";
-        command = ''
-          sudo ip link add name virbr0 type bridge && \
-            sudo ip link set dev enp5s0 master virbr0 && \
-            sudo ip addr add 192.168.0.20/24 dev virbr0 && \
-            sudo ip link set dev virbr0 up && \
-            sudo iptables -I FORWARD -m physdev --physdev-is-bridged -j ACCEPT
-        '';
+        name = "testvm-ssh";
+        help = "SSH into the testvm";
+        command = "ssh -p 2222 sysadmin@localhost $@";
       }
     ];
 }

@@ -68,9 +68,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # For running Nix programs with OpenGL outside of NixOS (needed for QEMU virtio-vga-gl)
-    # nixgl.url = "github:guibou/nixGL";
-
     wedding-website = {
       url = "git+ssh://git@github.com/bnavetta/follettnavetta.wedding.git?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";

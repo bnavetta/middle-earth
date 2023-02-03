@@ -13,10 +13,6 @@
   # Must be set for ZFS
   networking.hostId = "c30a0615";
 
-  # testvm
-  # users.users.root.hashedPassword = "$y$j9T$CkBt9droMLsowPFgmejj50$Da/O0NTOH1QNpij4XhA.6rWYs0CKHdHPnWi68CvIUxB";
-  # users.users.sysadmin.hashedPassword = "$y$j9T$CkBt9droMLsowPFgmejj50$Da/O0NTOH1QNpij4XhA.6rWYs0CKHdHPnWi68CvIUxB";
-
   middle-earth.networking.expectedInterfaces = [
     "eth0"
   ];
@@ -37,18 +33,19 @@
   };
 
   virtualisation.qemu.options = [
-    # TODO: QEMU OpenGL doesn't quite work with NVIDIA? https://github.com/NixOS/nixpkgs/issues/164436
-    # and sway is generally iffy with virtualized GPUs: https://github.com/swaywm/sway/issues/5834
     "-vga none"
     "-device virtio-vga-gl"
-    "-display gtk,gl=on"
-    "-cpu host"
-    # "-vga none" "-device virtio-vga" "-display gtk"
-    #"-vga none" "-device virtio-gpu-pci"
-    # "-vga virtio"
-    # "-vga qxl"
+    "-display sdl,gl=on"
+  ];
+  virtualisation.forwardPorts = [
+    # Forward host port 2222 to guest port 22, for SSH access
+    {
+      from = "host";
+      host.port = 2222;
+      guest.port = 22;
+    }
   ];
 
   # Enable limited DRM debugging
-  boot.kernelParams = ["drm.debug=0x1c"];
+  # boot.kernelParams = ["drm.debug=0x1c"];
 }

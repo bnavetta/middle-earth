@@ -48,7 +48,6 @@
     echo "cage exited ($?), starting shell"
     ${pkgs.zsh}/bin/zsh
   '';
-  # ${pkgs.sway}/bin/sway --config ${swayConfig}
 in {
   environment.systemPackages = [pkgs.wayland-utils pkgs.mesa pkgs.weston];
 
