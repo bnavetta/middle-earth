@@ -3,53 +3,94 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }: let
-  /*
-  # `-l` activates layer-shell mode.
-  greeter = "${pkgs.greetd.wlgreet}/bin/wlgreet -l -c sway";
+  waylandPkgs = inputs.nixpkgs-wayland.packages.${pkgs.system};
 
-  # Use Sway to wrap and run the greeter
-  swayConfig = pkgs.writeText "greetd-sway-config" ''
-    # Notice that `swaymsg exit` will run after the greeter.
-    exec "${greeter}; swaymsg exit"
+  # Partially adapted from https://gitlab.com/kira-bruneau/nixos-config/-/blob/main/environment/desktop.nix
+
+  gtkGreetStyle = pkgs.writeText "gtkgreet.css" ''
+    * {
+      color: #eee;
+      text-shadow: 1px 1px 2px #233;
+    }
+
+    #clock {
+      margin-bottom: 4px;
+    }
+
+    entry {
+      color: #444;
+      text-shadow: none;
+      box-shadow: 1px 1px 2px #233;
+      border-width: 2px;
+      padding: 4px 8px;
+      background-color: #eee;
+    }
+
+    button {
+        box-shadow: 1px 1px 2px #233;
+        border-width: 2px;
+        padding: 8px;
+        background-color: #eee;
+    }
+
+    button * {
+        color: #444;
+        text-shadow: none;
+    }
+
+    body {
+        padding-bottom: 4px;
+    }
+
+    combobox button {
+        box-shadow: none;
+        padding: 4px;
+    }
+
+    button.suggested-action * {
+        color: #eee;
+    }
+  '';
+
+  gtkGreetSwayConfig = pkgs.writeText "gtkgreet-sway-config" ''
     bindsym Mod4+shift+e exec swaynag \
       -t warning \
       -m 'What do you want to do?' \
       -b 'Poweroff' 'systemctl poweroff' \
       -b 'Reboot' 'systemctl reboot'
-
     include /etc/sway/config.d/*
+    exec "${pkgs.greetd.gtkgreet}/bin/gtkgreet -l; ${pkgs.sway}/bin/swaymsg exit"
   '';
-  */
-  swayWrapper = pkgs.writeShellScript "sway-wrapper" ''
-    # Use the programs.sway wrapper
-    rm -f /tmp/sway-debug.log
-    sway 2>&1 | tee /tmp/sway-debug.log
-  '';
+  # add -s ${gtkGreetStyle}; to gtkgreet command for styling
 
-  cage = pkgs.cage.overrideAttrs (final: prev: {
-    # Use a debug build to enable wlroots debug logging
-    mesonBuildType = "debug";
-  });
-
-  launcher = pkgs.writeShellScript "launcher" ''
-    echo "OpenGL drivers:"
-    ls /run/opengl-driver/lib/dri
-    echo "Greeter running as: $USER"
-
-    set -x
-    export LIBGL_DEBUG=verbose
+  # Wrap gtkgreet in sway since it needs a Wayland compositor. Also use sway for power commands
+  sessionCommand = pkgs.writeShellScript "gtkgreet-sway-launcher" ''
     export WLR_RENDERER_ALLOW_SOFTWARE=1
     # TODO: only really want this set for greeter
     export MESA_SHADER_CACHE_DIR="/tmp/mesa-shader-cache"
-    export WLR_NO_HARDWARE_CURSORS=1 # TODO: this should only apply to VMs?
-    ${cage}/bin/cage -s -- ${pkgs.greetd.gtkgreet}/bin/gtkgreet
-    echo "cage exited ($?), starting shell"
-    ${pkgs.zsh}/bin/zsh
+    systemd-cat --identifier gtkgreet-sway sway --config ${gtkGreetSwayConfig}
   '';
+
+  waylandSession = pkgs.writeShellScriptBin "wayland-session" ''
+    /run/current-system/systemd/bin/systemctl --user start graphical-session.target
+    /run/current-system/systemd/bin/systemd-cat --identifier "$1" "$@"
+    /run/current-system/systemd/bin/systemctl --user stop graphical-session.target
+  '';
+  # cage = pkgs.cage.overrideAttrs (final: prev: {
+  #   # Use a debug build to enable wlroots debug logging
+  #   mesonBuildType = "debug";
+  # });
 in {
-  environment.systemPackages = [pkgs.wayland-utils pkgs.mesa pkgs.weston];
+  environment.systemPackages = [
+    waylandSession
+    pkgs.wayland-utils
+    pkgs.mesa
+    pkgs.weston
+    waylandPkgs.wayfire-unstable
+  ];
 
   # In addition to installing sway, applies NixOS-specific setup
   programs.sway = {
@@ -65,15 +106,14 @@ in {
     enable = true;
     settings = {
       default_session = {
-        command = "${launcher}";
+        command = sessionCommand;
       };
     };
   };
 
   environment.etc."greetd/environments".text = ''
-    ${swayWrapper}
-    ${pkgs.zsh}/bin/zsh
-    ${pkgs.bash}/bin/bash
+    wayland-session wayfire
+    wayland-session sway
   '';
 
   # Silence warnings from LIBGL_DEBUG=verbose about a missing /etc/drirc config file

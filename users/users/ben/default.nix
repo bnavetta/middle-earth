@@ -3,10 +3,17 @@
   pkgs,
   lib,
   ...
-}: {
+}: let
+  # extraImports = builtins.trace pkgs.stdenv.hostPlatform.isDarwin [];
+  # if pkgs.stdenv.hostPlatform.isLinux
+  # then [profiles.nix-desktop]
+  # else if pkgs.stdenv.hostPlatform.isDarwin
+  # then []
+  # else [];
+in {
   home.stateVersion = "23.05";
 
-  imports = [profiles.shell];
+  # imports = [profiles.shell profiles.nix-desktop]; # ++ extraImports;
 
   programs.home-manager.enable = true;
 

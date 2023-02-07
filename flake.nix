@@ -5,12 +5,16 @@
   nixConfig = {
     extra-experimental-features = "nix-command flakes";
     extra-substituters = [
+      "https://cache.nixos.org"
       "https://nrdxp.cachix.org"
       "https://nix-community.cachix.org"
+      "https://nixpkgs-wayland.cachix.org"
     ];
     extra-trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
       "nrdxp.cachix.org-1:Fc5PSqY2Jm1TrWfm88l6cvGWwz3s93c6IOifQWnhNW4="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
     ];
   };
 
@@ -47,7 +51,7 @@
     };
 
     agenix = {
-      url = "github:bnavetta/ragenix?ref=remove-header-function";
+      url = "github:yaxitech/ragenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -56,7 +60,17 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixos-hardware.url = "github:NixOS/nixos-hardware";
+
+    nixpkgs-wayland = {
+      url = "github:nix-community/nixpkgs-wayland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     lanzaboote = {
       url = "github:nix-community/lanzaboote";
@@ -136,7 +150,7 @@
             # { lib.our = self.lib; }
 
             # TODO: adapt https://github.com/divnix/digga/blob/main/modules/bootstrap-iso.nix to use custom installer
-            # digga.nixosModules.bootstrapIso
+            digga.nixosModules.bootstrapIso
 
             digga.nixosModules.nixConfig
             home-manager.nixosModules.home-manager
@@ -164,7 +178,8 @@
         #      https://digga.divnix.com/api-reference-home.html#homeusers
         importables = rec {
           profiles = digga.lib.rakeLeaves ./profiles;
-          suites = import ./suites.nix {inherit profiles;};
+          users = digga.lib.rakeLeaves ./users/nixos;
+          suites = import ./suites.nix {inherit profiles users;};
         };
       };
 
@@ -191,16 +206,18 @@
 
       deploy = {
         sshUser = "root";
-        nodes = digga.lib.mkDeployNodes self.nixosConfigurations {};
-      };
-    }
-    // {
-      packages.x86_64-linux.testvm = nixos-generators.nixosGenerate {
-        system = "x86_64-linux";
-        modules = [
-          # self.nixosConfigurations.testvm.config
-        ];
-        format = "vm-bootloader";
+        nodes = digga.lib.mkDeployNodes self.nixosConfigurations {
+          testvm = {
+            sshUser = "sysadmin";
+            hostname = "localhost";
+            sshOpts = ["-p" "2222" "-o" "UserKnownHostsFile=/dev/null" "-o" "StrictHostKeyChecking=no"];
+            profilesOrder = ["system" "hm-ben"];
+            profiles.hm-ben = {
+              user = "ben";
+              path = deploy.lib.x86_64-linux.activate.home-manager self.homeConfigurationsPortable.x86_64-linux.ben;
+            };
+          };
+        };
       };
     };
 

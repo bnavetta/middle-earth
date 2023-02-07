@@ -28,6 +28,7 @@
       git
       jq
       manix
+      nix-info
       nmap
       lsof
       ripgrep
@@ -71,10 +72,20 @@
     # This keeps nix shells from getting garbage-collected
     extraOptions = ''
       #min-free = 536870912
-      keep-outputs = true
-      keep-derivations = true
+      # keep-outputs = true
+      # keep-derivations = true
       fallback = true
     '';
+  };
+
+  home-manager = {
+    # This installs packages to /etc/profiles instead of $HOME/.nix-profile, which enables nixos-rebuild build-vm
+    # It may become the default in the future.
+    # useUserPackages = true;
+
+    # Use the system `pkgs` rather than a private Home Manager instance
+    # This cuts down on work and ensures consistency
+    useGlobalPkgs = true;
   };
 
   # To save space and time, don't generate documentation that I won't use,

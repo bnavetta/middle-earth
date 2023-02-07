@@ -21,6 +21,30 @@
       exec nix run --impure github:guibou/nixGL -- "$@"
     fi
   '';
+
+  installerLink = "installer";
+  vmName = "middle-earth-testvm";
+
+  buildInstaller = pkgs.writeShellScript "createInstaller" ''
+    nixos-generate --flake '.#installer' --format install-iso --out-link ${installerLink}
+  '';
+
+  createVM = pkgs.writeShellScript "createVM" ''
+    installer_iso="$(find -L ${installerLink} -name '*.iso')"
+    echo "Using: $(which virt-install)"
+
+    virt-install --name ${vmName} \
+      --memory=8192 \
+      --vcpus=4 \
+      --disk "$HOME/big/${vmName}.qcow2,device=disk,bus=virtio,size=32" \
+      --cdrom "$installer_iso" \
+      --boot "loader=${pkgs.OVMF.firmware},nvram.template=${pkgs.OVMF.variables},loader.readonly=yes,loader.type=pflash,loader_secure=no" \
+      --osinfo nixos-unstable \
+      --graphics type=sdl,gl.enable=yes \
+      --video model.type=virtio,model.acceleration.accel3d=yes \
+  '';
+
+  onLinux = pkgs.stdenv.hostPlatform.isLinux && !pkgs.stdenv.buildPlatform.isDarwin;
 in {
   imports = [
     # Enable devshell's git hook support
@@ -28,18 +52,22 @@ in {
     ./git-hooks
   ];
 
-  packages = with pkgs; [
-    age
-    age-plugin-yubikey
-    alejandra
-    cachix
-    libguestfs-with-appliance
-    mkpasswd
-    nixos-generators
-    shfmt
-    treefmt
-    nodePackages.prettier
-  ];
+  packages = with pkgs;
+    [
+      age
+      age-plugin-yubikey
+      alejandra
+      cachix
+      mkpasswd
+      shfmt
+      treefmt
+      # virt-manager
+      nodePackages.prettier
+    ]
+    ++ lib.optionals onLinux [
+      nixos-generators
+      libguestfs-with-appliance
+    ];
 
   commands =
     [
@@ -65,10 +93,31 @@ in {
 
       (commandIn "formatter" pkgs.treefmt)
     ]
-    ++ lib.optionals (pkgs.stdenv.hostPlatform.isLinux && !pkgs.stdenv.buildPlatform.isDarwin) [
+    ++ lib.optionals onLinux [
       # Linux-only commands
       (middleEarthCommand pkgs.nixos-generators)
       (middleEarthCommand inputs.deploy.packages.${pkgs.system}.deploy-rs)
+
+      {
+        category = "middle-earth";
+        name = "build-installer";
+        help = "Build the installer ISO";
+        command = "${buildInstaller}";
+      }
+
+      {
+        category = "testvm";
+        name = "testvm-create";
+        help = "Create a new test VM";
+        command = "${createVM}";
+      }
+
+      {
+        category = "testvm";
+        name = "testvm-destroy";
+        help = "Destroy the test VM";
+        command = "virsh destroy ${vmName}; virsh undefine ${vmName} --nvram; rm -f $HOME/big/${vmName}.qcow2";
+      }
 
       {
         category = "testvm";
@@ -97,7 +146,7 @@ in {
         category = "testvm";
         name = "testvm-ssh";
         help = "SSH into the testvm";
-        command = "ssh -p 2222 sysadmin@localhost $@";
+        command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 2222 sysadmin@localhost $@";
       }
     ];
 }

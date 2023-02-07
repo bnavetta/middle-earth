@@ -27,6 +27,8 @@
   # TODO: derive disks from partitioner config?
   middle-earth.state.impermanence = true;
 
+  middle-earth.networking.expectedInterfaces = ["enp5s0" "wlan0"];
+
   # Tailscale means installer and host can just call back and forth (HTTP, gRPC, etc.) - no need for magic wormhole
   # - installer sends over its public keys
   # - host adds them, sends over GitHub app key

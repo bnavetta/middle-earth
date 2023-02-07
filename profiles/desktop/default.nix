@@ -9,7 +9,7 @@
   services.pcscd.enable = true;
   services.udev.packages = [pkgs.yubikey-personalization];
 
-  services.picom.enable = true;
+  # services.picom.enable = true;
 
   environment.systemPackages = with pkgs; [
     alacritty

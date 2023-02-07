@@ -7,4 +7,6 @@ final: prev: {
   bpb = prev.bpb.overrideAttrs (o: rec {
     inherit (final.sources.bpb) pname version src;
   });
+
+  mustacheTemplate = final.callPackage ./mustacheTemplate.nix {};
 }

@@ -36,6 +36,9 @@ in {
   };
 
   config = mkIf cfg.impermanence {
+    boot.zfs.forceImportRoot = false;
+    boot.zfs.forceImportAll = false;
+    boot.initrd.supportedFilesystems = ["zfs"];
     boot.supportedFilesystems = ["zfs"];
     # Ensure that we're always using a ZFS-compatible kernel
     boot.kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
@@ -43,6 +46,16 @@ in {
     ################
     # File Systems #
     ################
+
+    # TODO: assert that these are in the hardware-specific config? to support disko, etc.
+
+    fileSystems."/".neededForBoot = true;
+    fileSystems."/efi".neededForBoot = true;
+    fileSystems."/nix".neededForBoot = true;
+    fileSystems."/persist/local".neededForBoot = true;
+    fileSystems."/persist/safe".neededForBoot = true;
+
+    /*
 
     fileSystems."/" = {
       device = "none";
@@ -71,6 +84,8 @@ in {
       options = ["relatime" "zfsutil" "X-Mount.mkdir"];
       neededForBoot = true;
     };
+
+    */
 
     ############################
     # Default Persistent State #
