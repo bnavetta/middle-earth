@@ -5,7 +5,7 @@
   lib = inputs.nixpkgs.lib // builtins;
 
   # Adapted from mkMicrovm - the the baseline `lib` doesn't have a `nixosSystem` function (I guess it's not instantiated enough?)
-  nixosSystem = args: import "${inputs.nixpkgs.path}/nixos/lib/eval-config.nix" (args // { modules = args.modules; });
+  nixosSystem = args: import "${inputs.nixpkgs.path}/nixos/lib/eval-config.nix" (args // {modules = args.modules;});
 in {
   # mkSystem is a function used by `nixosSystem` cell blocks to build NixOS configurations.
   #
@@ -31,7 +31,9 @@ in {
       inherit system;
       modules = modules ++ autoModules;
     };
-  in instantiatedSystem // {
-    inherit meta;
-  };
+  in
+    instantiatedSystem
+    // {
+      inherit meta;
+    };
 }

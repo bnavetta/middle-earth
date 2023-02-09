@@ -88,7 +88,7 @@
   };
 in {
   imports = [
-      inputs.impermanence.nixosModules.impermanence
+    inputs.impermanence.nixosModules.impermanence
   ];
 
   options = {

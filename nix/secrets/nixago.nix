@@ -1,49 +1,71 @@
 {
   inputs,
-  cell
+  cell,
 }: let
-  inherit (inputs) nixpkgs;
+  inherit (inputs) nixpkgs agenix-cli;
   lib = nixpkgs.lib // builtins;
-  inherit (lib) or;
 
-  rule = with inputs.yants; struct "rule" {
-    pathRegex = string;
-    users = option (list string);
-    hosts = option (list string);
-  };
-
-  # Extract keys from user and host cells
-  userKeys = lib.mapAttrs (name: cell: lib.attrByPath ["sops" "user" "keys"] [] cell) inputs.cells;
-  hostKeys = lib.mapAttrs (name: cell: lib.attrByPath ["sops" "host" "keys"] [] cell) inputs.cells;
-
-  # Convert a rule definition into a SOPS creation rule
-  mkRule = cell: r:
-    let
-      validated = rule r;
-    # Select keys by name, with a special `*` shorthand to match all
-    getKeys = attr: defined:
-      let
-        selected = if lib.hasAttr attr validated then validated.${attr} else [];
-        all = lib.flatten (lib.attrValues defined);
-      in lib.concatMap (name: if name == "*" then all else defined.${name}) selected;
+  schemaModule = let
+    inherit (lib) mkOption types;
+    strings = types.listOf types.str;
   in {
-    path_regex = "nix/${cell}/" + validated.pathRegex;
-    key_groups = [ { age = lib.unique ((getKeys "users" userKeys) ++ (getKeys "hosts" hostKeys)); } ];
-  };
+    options = {
+      identities = mkOption {
+        type = types.attrsOf types.str;
+        description = "Named age recipients";
+      };
 
-  rulesByCell = lib.mapAttrs (name: cell: lib.map (mkRule name) (lib.attrByPath ["sops" "rules"] [] cell)) inputs.cells;
-  allRules = lib.flatten (lib.attrValues rulesByCell);
-in {
-  sops = inputs.std.lib.dev.mkNixago {
-    configData = {
-      creation_rules = allRules;
+      groups = mkOption {
+        type = types.attrsOf strings;
+        description = "Named groups of identitities";
+      };
+
+      paths = mkOption {
+        type = types.listOf (types.submodule {
+          options = {
+            glob = mkOption {
+              type = types.str;
+              description = "Glob of files that this rule applies to";
+            };
+
+            identities = mkOption {
+              type = strings;
+              description = "Identities to encrypt the secret with";
+            };
+
+            groups = mkOption {
+              type = strings;
+              description = "Groups of identities to encrypt the secret with";
+            };
+          };
+        });
+      };
     };
-    output = ".sops.yaml";
-    format = "yaml";
-    packages = [nixpkgs.sops];
   };
 
-  # Next steps:
-  # 2. create some sops secrets
-  # 3. test deploying them
+  # Find all `secrets` cell blocks
+  configs = let
+    # Filter out the system-specific entries in inputs.cells
+    # From https://github.com/divnix/std/blob/ec62c8acb468708902735dc037225e46a49f8bdc/cells/std/nixago/conform.nix#L25
+    cellNames = lib.subtractLists lib.systems.doubles.all (lib.attrNames inputs.cells);
+    cells = lib.map (c: inputs.cells.${c}) cellNames;
+  in
+    lib.catAttrs "secrets" cells;
+  evaluated = lib.evalModules {
+    modules = [schemaModule] ++ configs;
+  };
+in {
+  agenix = inputs.std.lib.dev.mkNixago {
+    configData = evaluated.config;
+    output = ".agenix.toml";
+    format = "toml";
+    commands = [
+      {
+        package = agenix-cli.packages.agenix-cli;
+        name = "agenix";
+        help = "age-encrypted secrets for NixOS";
+        category = "Ops";
+      }
+    ];
+  };
 }

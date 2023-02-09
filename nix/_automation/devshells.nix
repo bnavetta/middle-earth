@@ -8,10 +8,10 @@
   inherit (inputs.cells) secrets;
 in
   lib.mapAttrs (_: std.lib.dev.mkShell) {
-    default = { ... }: {
+    default = {...}: {
       name = "Middle Earth Devshell";
       nixago = [
-        secrets.nixago.sops
+        secrets.nixago.agenix
       ];
 
       packages = [

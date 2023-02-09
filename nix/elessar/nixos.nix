@@ -16,10 +16,10 @@
         networking.hostId = "0b8a8daa";
 
         fileSystems."/efi" = {
-         device = "/dev/nvme0n1p2";
-         fsType = "vfat";
-         neededForBoot = true;
-        };  
+          device = "/dev/nvme0n1p2";
+          fsType = "vfat";
+          neededForBoot = true;
+        };
       }
       inputs.cells.base.profiles.default
     ];

@@ -58,12 +58,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    ragenix = {
-      url = "github:yaxitech/ragenix";
+    agenix = {
+      url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
+    agenix-cli = {
+      url = "github:cole-h/agenix-cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -125,8 +125,8 @@
           };
         in [
           (data "vars")
-          # Used to factor out .sops.yaml configuration
-          (data "sops")
+          # Used to factor out .agenix.toml configuration
+          (data "secrets")
           (functions "lib")
           (functions "profiles")
           (nixosSystems "nixos")
@@ -139,9 +139,7 @@
 
       std.pick = {
         nixosConfigurations = [
-          # TODO: this doesn't work because the lib.nixosSystem call is hidden :(
-          # might have to make it explicit (and/or provide a helper function, like std does for devshells)
-          [ "elessar" "nixos"]
+          ["elessar" "nixos"]
         ];
       };
 

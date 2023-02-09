@@ -8,4 +8,5 @@ terraform.tfstate.backup
 *.qcow2
 
 # nixago: ignore-linked-files
+.agenix.toml
 .sops.yaml
