@@ -32,9 +32,11 @@
     };
     flake-root.url = github:srid/flake-root;
     mission-control.url = github:Platonic-Systems/mission-control;
+    yants.url = "github:divnix/yants";
     std = {
       url = "github:divnix/std";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.yants.follows = "yants";
     };
     treefmt = {
       url = "github:numtide/treefmt-nix";
@@ -58,6 +60,10 @@
 
     ragenix = {
       url = "github:yaxitech/ragenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -119,9 +125,13 @@
           };
         in [
           (data "vars")
+          # Used to factor out .sops.yaml configuration
+          (data "sops")
           (functions "lib")
           (functions "profiles")
           (nixosSystems "nixos")
+          (nixago "nixago")
+          (devshells "devshells")
         ];
 
         nixpkgsConfig = {allowUnfree = true;};

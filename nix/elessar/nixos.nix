@@ -2,7 +2,8 @@
   inputs,
   cell,
 }: {
-  elessar = {
+  elessar = inputs.cells.lib.lib.mkSystem {
+    name = "elessar";
     system = "x86_64-linux";
     modules = [
       {

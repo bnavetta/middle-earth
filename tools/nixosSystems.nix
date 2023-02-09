@@ -22,18 +22,13 @@
       fragmentRelPath,
       target,
     }: let
-      nixosConfig = lib.nixosSystem {
-        inherit (target) system;
-        modules = target.modules ++ [
-          { networking.hostName = builtins.baseNameOf fragmentRelPath; }
-        ];
-      };
+      # TODO: look at https://github.com/zhaofengli/colmena instead of deploy-rs - built-in support for cross-deployment and local deployment
     in [
       (mkCommand system {
         name = "closure";
         description = "Build the system closure";
         command = ''
-          echo ${nixosConfig.config.system.build.toplevel}
+          echo ${target.config.system.build.toplevel}
         '';
       })
     ];

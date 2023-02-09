@@ -7,7 +7,7 @@
   nixpkgs.config.allowUnfree = true;
 
   imports = [
-    inputs.ragenix.nixosModules.age
+    inputs.sops-nix.nixosModules.sops
     inputs.home-manager.nixosModules.home-manager
   ];
 
