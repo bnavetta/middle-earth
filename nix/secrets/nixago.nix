@@ -2,7 +2,7 @@
   inputs,
   cell,
 }: let
-  inherit (inputs) nixpkgs agenix-cli;
+  inherit (inputs) nixpkgs ragenix;
   lib = nixpkgs.lib // builtins;
 
   schemaModule = let
@@ -20,12 +20,12 @@
         description = "Named groups of identitities";
       };
 
-      paths = mkOption {
+      secrets = mkOption {
         type = types.listOf (types.submodule {
           options = {
-            glob = mkOption {
-              type = types.str;
-              description = "Glob of files that this rule applies to";
+            path = mkOption {
+              type = types.path;
+              description = "Path to the secret file";
             };
 
             identities = mkOption {
@@ -43,25 +43,46 @@
     };
   };
 
+  # Substitution helpers
+  subst = defns: name: if lib.hasAttr name defns then defns.${name} else name;
+
+  # Find all real cells, filtering out the system-specific entries
+  # From https://github.com/divnix/std/blob/ec62c8acb468708902735dc037225e46a49f8bdc/cells/std/nixago/conform.nix#L25
+  cellNames = lib.subtractLists lib.systems.doubles.all (lib.attrNames inputs.cells);
+
   # Find all `secrets` cell blocks
-  configs = let
-    # Filter out the system-specific entries in inputs.cells
-    # From https://github.com/divnix/std/blob/ec62c8acb468708902735dc037225e46a49f8bdc/cells/std/nixago/conform.nix#L25
-    cellNames = lib.subtractLists lib.systems.doubles.all (lib.attrNames inputs.cells);
-    cells = lib.map (c: inputs.cells.${c}) cellNames;
-  in
-    lib.catAttrs "secrets" cells;
+  configs = lib.catAttrs "secrets" (lib.map (c: inputs.cells.${c}) cellNames);
+
+  identities = lib.foldl (acc: i: acc // i) {} (lib.catAttrs "identities" configs);
+  groups = let
+    # First, combine the group declarations across all cells
+    unresolved = lib.zipAttrsWith (_: values: lib.flatten values) (lib.catAttrs "groups" configs);
+    # Then, resolve identities
+    resolved = lib.mapAttrs (_: members: lib.map (subst identities) members) unresolved;
+  in resolved;
+
+  # Now, construct rules from each cell
+  # This logic to figure out the relative path is kind of bleh
+  rules = let
+    mkRule = cell: rule: let
+      path = "nix/${cell}/${rule.path}";
+      directIdentities = if rule ? identities then lib.map (subst identities) rule.identities else [];
+      groupIdentities = if rule ? groups then lib.concatMap (subst groups) rule.groups else [];
+    in { name = path; value = { publicKeys = directIdentities ++ groupIdentities; }; };
+    mkCellRules = cell: lib.map (mkRule cell) (lib.attrByPath ["secrets" "secrets"] [] inputs.cells.${cell});
+  in lib.listToAttrs (lib.concatMap mkCellRules cellNames);
+
   evaluated = lib.evalModules {
     modules = [schemaModule] ++ configs;
   };
 in {
   agenix = inputs.std.lib.dev.mkNixago {
-    configData = evaluated.config;
-    output = ".agenix.toml";
-    format = "toml";
+    configData = rules;
+    output = ".secrets.nix.json";
+    format = "json";
     commands = [
       {
-        package = agenix-cli.packages.agenix-cli;
+        package = ragenix.packages.ragenix;
         name = "agenix";
         help = "age-encrypted secrets for NixOS";
         category = "Ops";

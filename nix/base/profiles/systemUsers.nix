@@ -32,8 +32,8 @@
   };
 
   mainConfig = {
-    age.secrets.rootPassword.file = lib.trace ./. ../../../secrets/${config.networking.hostName}/root.age;
-    age.secrets.sysadminPassword.file = ../../../secrets/sysadmin_password.age;
+    age.secrets.rootPassword.file = ../../${config.networking.hostName}/secrets/root.age;
+    age.secrets.sysadminPassword.file = ../secrets/sysadmin_password.age;
     users.users.root.passwordFile = config.age.secrets.rootPassword.path;
     users.users.sysadmin.passwordFile = config.age.secrets.sysadminPassword.path;
   };

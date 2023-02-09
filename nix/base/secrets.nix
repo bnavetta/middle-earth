@@ -4,11 +4,8 @@
 }: {
   groups.hosts = [];
 
-  paths = [
-    {
-      glob = "nix/base/secrets/*";
-      identities = ["ben"];
-      groups = ["hosts"];
-    }
-  ];
+  secrets = [{
+    path = "secrets/sysadmin_password.age";
+    groups = ["hosts" "admins"];
+  }];
 }
