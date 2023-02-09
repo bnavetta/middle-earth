@@ -4,12 +4,12 @@ set -e
 # Assimilate a new host by setting up its NixOS config
 
 USAGE() {
-    echo "Usage: $(basename $0) <server_name> <public_ip>" >&2
-    exit 2
+  echo "Usage: $(basename $0) <server_name> <public_ip>" >&2
+  exit 2
 }
 
 if [[ -z $1 || -z $2 ]]; then
-    USAGE
+  USAGE
 fi
 
 server_name="${1}"
@@ -17,16 +17,16 @@ public_ip="${2}"
 
 # SSH to a host, ignoring its host key
 ssh_ignore() {
-    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $*
+  ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $*
 }
 
 # SSH into the victim host identified by the caller
 ssh_victim() {
-    ssh_ignore "root@$public_ip" $*
+  ssh_ignore "root@$public_ip" $*
 }
 
 scp_victim() {
-    scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "root@$server_name:$1" "$2"
+  scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "root@$server_name:$1" "$2"
 }
 
 # Set up the config tree for the victim

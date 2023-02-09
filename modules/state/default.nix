@@ -49,20 +49,12 @@ in {
 
     # TODO: assert that these are in the hardware-specific config? to support disko, etc.
 
-    fileSystems."/".neededForBoot = true;
     fileSystems."/efi".neededForBoot = true;
     fileSystems."/nix".neededForBoot = true;
     fileSystems."/persist/local".neededForBoot = true;
     fileSystems."/persist/safe".neededForBoot = true;
 
     /*
-
-    fileSystems."/" = {
-      device = "none";
-      fsType = "tmpfs";
-      options = ["defaults" "size=${cfg.rootfsSize}" "mode=755"];
-      neededForBoot = true;
-    };
 
     fileSystems."/nix" = {
       device = "rpool/local/nix";

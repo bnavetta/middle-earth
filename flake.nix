@@ -19,27 +19,33 @@
   };
 
   inputs = {
-    flake-compat = {
-      url = "github:edolstra/flake-compat";
-      flake = false;
-    };
-
     flake-utils.url = "github:numtide/flake-utils";
 
-    # Only use latest NixOS
+    # Packages
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nur.url = "github:nix-community/NUR";
 
-    digga = {
-      url = "github:divnix/digga";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        nixlib.follows = "nixpkgs";
-        home-manager.follows = "home-manager";
-        deploy.follows = "deploy";
-      };
+    # Flake management
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+    flake-root.url = github:srid/flake-root;
+    mission-control.url = github:Platonic-Systems/mission-control;
+    std = {
+      url = "github:divnix/std";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    treefmt = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    pre-commit-hooks-nix = {
+      url = "github:cachix/pre-commit-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nur.url = "github:nix-community/NUR";
+    # system utilities
 
     impermanence = {
       url = "github:nix-community/impermanence";
@@ -50,7 +56,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    agenix = {
+    ragenix = {
       url = "github:yaxitech/ragenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -82,6 +88,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # my flakes
+
     wedding-website = {
       url = "git+ssh://git@github.com/bnavetta/follettnavetta.wedding.git?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -89,6 +97,82 @@
 
     # TODO: also add LnL7/nix-darwin if applicable
   };
+
+  outputs = {
+    self,
+    flake-parts,
+    ...
+  } @ inputs:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      flake = {
+        overlays = {
+          ragenix = inputs.agenix.overlays.default;
+        };
+      };
+
+      std.grow = {
+        cellsFrom = ./nix;
+        cellBlocks = with inputs.std.blockTypes; let
+          nixosSystems = import ./tools/nixosSystems.nix {
+            inherit (inputs.std) sharedActions;
+            inherit (inputs) nixpkgs;
+          };
+        in [
+          (data "vars")
+          (functions "lib")
+          (functions "profiles")
+          (nixosSystems "nixos")
+        ];
+
+        nixpkgsConfig = {allowUnfree = true;};
+      };
+
+      std.pick = {
+        nixosConfigurations = [
+          # TODO: this doesn't work because the lib.nixosSystem call is hidden :(
+          # might have to make it explicit (and/or provide a helper function, like std does for devshells)
+          [ "elessar" "nixos"]
+        ];
+      };
+
+      imports = [
+        inputs.std.flakeModule
+        inputs.flake-root.flakeModule
+        inputs.mission-control.flakeModule
+        inputs.treefmt.flakeModule
+        inputs.pre-commit-hooks-nix.flakeModule
+        ./tools/devshell.nix
+      ];
+
+      systems = ["x86_64-linux" "x86_64-darwin" "aarch64-linux"];
+
+      perSystem = {
+        config,
+        pkgs,
+        system,
+        ...
+      }: let
+        # Shared settings for treefmt and pre-commit (this works as long as both use the same names for formatters)
+        formatters = {
+          alejandra.enable = true;
+          prettier.enable = true;
+          shellcheck.enable = false;
+          shfmt.enable = true;
+        };
+      in {
+        # use std with a custom block type for NixOS configurations
+        treefmt.config = {
+          inherit (config.flake-root) projectRootFile;
+          package = pkgs.treefmt;
+
+          programs = formatters;
+        };
+
+        pre-commit.settings.hooks = formatters;
+      };
+    };
+
+  /*
 
   outputs = {
     self,
@@ -220,105 +304,6 @@
         };
       };
     };
-
-  /*
-  let
-  inherit (nixpkgs.lib) filterAttrs nixosSystem;
-  inherit (builtins) readDir readFile mapAttrs filter pathExists hasAttr;
-
-  # Produces a root NixOS module that encapsulates all the config for a system. This module can be used to either build a system (with `nixosSystem`)
-  # or build a disk image (using `nixosGenerate`).
-  mkRootModule = name: config:
-  let
-  extraModules = if config ? extraModules then config.extraModules else [ ];
-  in
-  {
-  imports = [
-  ./lib/modules/common.nix
-  ./lib/modules/containers.nix
-  ./lib/modules/auto-update.nix
-  ragenix.nixosModules.age
-  home-manager.nixosModules.home-manager
-  {
-  networking.hostName = if config ? hostname then config.hostname else name;
-  system = {
-  stateVersion = config.stateVersion;
-  # Bake the repository's git revision into the system
-  configurationRevision = if (hasAttr "rev" self.sourceInfo) then self.sourceInfo.rev else "dirty";
-  };
-
-  # See https://www.tweag.io/blog/2020-07-31-nixos-flakes/
-  # This pins nixpkgs to the version the system was built with
-  nix.registry.nixpkgs.flake = nixpkgs;
-  }
-  ] ++ extraModules;
-  };
-
-
-  systems = mapAttrs
-  (name: sys: sys.loadConfig {
-  localModules = ./lib/modules;
-  flakes = { inherit wedding-website nixos-hardware; };
-  inherit flake-utils;
-  })
-  (import ./lib/systems.nix);
-  in
-  {
-  # Create NixOS configurations and deploy-rs nodes for each host
-  nixosConfigurations = mapAttrs
-  (name: config:
-  # Only include hardware configuration for NixOS configs, not when producing disk images
-  let sysModules = filter pathExists [ ./systems/${name}/hardware-configuration.nix ./systems/${name}/networking.nix ]; in
-  nixosSystem
-  {
-  system = config.system;
-  modules = [ (mkRootModule name config) ] ++ sysModules;
-  })
-  systems;
-
-  deploy.nodes = mapAttrs
-  (name: config: {
-  hostname = name;
-  profiles.system = {
-  user = "root";
-  sshUser = "root";
-  path = deploy-rs.lib.${config.system}.activate.nixos self.nixosConfigurations.${name};
-  };
-  })
-  systems;
-
-  packages.x86_64-linux.luthien-image =
-  let
-  config = systems.luthien; in
-  nixos-generators.nixosGenerate
-  {
-  system = config.system;
-  modules = [ (mkRootModule "luthien" config) ];
-  format = "do";
-  };
-
-  # Checks don't work with remote builds https://github.com/serokell/deploy-rs/issues/167#issuecomment-1326841159
-  # checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
-  } // flake-utils.lib.eachDefaultSystem (system:
-  let
-  pkgs = nixpkgs.legacyPackages.${system};
-  in
-  {
-  devShells.default = pkgs.mkShell {
-  buildInputs = with pkgs; [
-  age
-  terraform
-  age-plugin-yubikey
-
-  deploy-rs.packages.${system}.deploy-rs
-
-  ragenix.packages.${system}.default
-  ];
-  };
-
-  formatter = pkgs.nixpkgs-fmt;
-  }
-  );
 
   */
 }
