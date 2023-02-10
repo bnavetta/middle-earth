@@ -3,6 +3,7 @@
   cell,
 }: let
   inherit (inputs.cells) base;
+  inherit (cell) homeProfiles;
 
   sshKeys = [
     # Original
@@ -13,5 +14,23 @@ in {
   nixos = base.lib.mkModule "Ben's user configuration for NixOS" ({...}: {
     # Also set SSH keys for root?
     users.users.sysadmin.openssh.authorizedKeys.keys = sshKeys;
+
+    users.users.ben = {
+      # TODO: password file
+      password = "ben";
+      description = "Ben";
+      isNormalUser = true;
+      createHome = true;
+      extraGroups = ["wheel"];
+      openssh.authorizedKeys.keys = sshKeys;
+    };
+
+    home-manager.users.ben = {...}: {
+      imports = [
+        homeProfiles.common
+        homeProfiles.desktop
+        base.homeProfiles.state
+      ];
+    };
   });
 }

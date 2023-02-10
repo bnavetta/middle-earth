@@ -8,13 +8,17 @@
   # Host directory for microVM volumes
   volumeDir = "/home/ben/big/middle-earth/pippin";
 in {
-  pippin = std.lib.ops.mkMicrovm ({config, lib, ...}: {
+  pippin = std.lib.ops.mkMicrovm ({
+    config,
+    lib,
+    ...
+  }: {
     system.stateVersion = "23.05";
     networking.hostName = "pippin";
 
     # microvm.nix disables DRM by default
     # https://github.com/astro/microvm.nix/blob/5882c4da762d1d5414aaa599f8f671e58100bccf/nixos-modules/microvm/system.nix#L74
-    boot.blacklistedKernelModules = lib.mkForce [ "rfkill" "intel_pstate" ];
+    boot.blacklistedKernelModules = lib.mkForce ["rfkill" "intel_pstate"];
 
     boot.kernelModules = ["drm" "virtio_gpu"];
 

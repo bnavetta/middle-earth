@@ -8,19 +8,10 @@
   inherit (lib) mdDoc mkOption mkMerge mkIf types filter partition;
   cfg = config.middle-earth.state;
 
-  safeRoot =
-    if cfg.mode == "zfs"
-    then "/persist/safe"
-    else "/persist";
-  localRoot =
-    if cfg.mode == "zfs"
-    then "/persist/local"
-    else "/persist";
-
   persistPath = name: safe:
     if safe
-    then "${safeRoot}/${name}"
-    else "${localRoot}/${name}";
+    then "${cfg.safeRoot}/${name}"
+    else "${cfg.localRoot}/${name}";
 
   persistType = types.submodule ({config, ...}: {
     options = {
@@ -126,6 +117,32 @@ in {
           Path to the ZFS storage pool (and optionally, parent dataset), to put state datasets in.
         '';
       };
+
+      users = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        description = ''
+          Users who need persistent state directories
+        '';
+      };
+
+      safeRoot = mkOption {
+        type = types.str;
+        default =
+          if cfg.mode == "zfs"
+          then "/persist/safe"
+          else "/persist";
+        internal = true;
+      };
+
+      localRoot = mkOption {
+        type = types.str;
+        default =
+          if cfg.mode == "zfs"
+          then "/persist/local"
+          else "/persist";
+        internal = true;
+      };
     };
   };
 
@@ -159,6 +176,9 @@ in {
       system.activationScripts.agenixInstall = mkIf (config.age.secrets != {}) {
         deps = ["createDirectPersistentStorageDirs"];
       };
+
+      # Needed for user-level persistence
+      programs.fuse.userAllowOther = true;
     }
 
     (mkIf (cfg.mode
@@ -169,34 +189,42 @@ in {
         neededForBoot = true;
       };
 
-      fileSystems."${localRoot}" = {
+      fileSystems."${cfg.localRoot}" = {
         device = "${cfg.zfs.parent}/local/persist";
         fsType = "zfs";
         neededForBoot = true;
       };
 
-      fileSystems."${safeRoot}" = {
+      fileSystems."${cfg.safeRoot}" = {
         device = "${cfg.zfs.parent}/safe/persist";
         fsType = "zfs";
         neededForBoot = true;
       };
 
-      environment.persistence."${localRoot}" = {
+      environment.persistence."${cfg.localRoot}" = {
         hideMounts = true;
         directories = impermanenceDirs.local;
       };
-      environment.persistence."${safeRoot}" = {
+      environment.persistence."${cfg.safeRoot}" = {
         hideMounts = true;
         directories = impermanenceDirs.safe;
       };
+
+      # middle-earth.state.persist = lib.listToAttrs (lib.map (name: {
+      #   inherit name;
+      #   value = {
+      #     user = name;
+      #     group = name;
+      #   };
+      # }) cfg.users);
     })
 
     (mkIf (cfg.mode
       == "onefs") {
-      fileSystems."${localRoot}".neededForBoot = lib.mkForce true;
+      fileSystems."${cfg.localRoot}".neededForBoot = lib.mkForce true;
 
       # No distinction between local and safe
-      environment.persistence."${localRoot}" = {
+      environment.persistence."${cfg.localRoot}" = {
         hideMounts = true;
         directories = impermanenceDirs.local ++ impermanenceDirs.safe;
       };
@@ -204,10 +232,19 @@ in {
 
     # Default persistence settings
     {
-      middle-earth.state.persist.home = {
-        path = "/home";
-        safe = true;
-      };
+      
+      middle-earth.state.persist = let
+        mkEntry = safe: name: {
+          name = if safe then "${name}-safe" else "${name}-local";
+          value = {
+            inherit name;
+            user = name;
+            group = name;
+          };
+        };
+        userSafe = map (mkEntry true) cfg.users;
+        userLocal = map (mkEntry false) cfg.users;
+      in lib.listToAttrs (userSafe ++ userLocal);
     }
   ];
 

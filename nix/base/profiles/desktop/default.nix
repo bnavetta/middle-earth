@@ -7,6 +7,7 @@ in
     pkgs,
     ...
   }: let
+    # TODO: look at gtkgreet styling per https://gitlab.com/kira-bruneau/nixos-config/-/blob/main/environment/desktop.nix
     gtkGreetSwayConfig = pkgs.writeText "gtkgreet-sway-config" ''
       bindsym Mod4+shift+e exec swaynag \
         -t warning \

@@ -42,6 +42,7 @@
       inputs.yants.follows = "yants";
       inputs.microvm.url = "github:astro/microvm.nix";
       inputs.microvm.inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixago.follows = "nixago";
     };
     treefmt = {
       url = "github:numtide/treefmt-nix";
@@ -60,6 +61,11 @@
 
     home-manager = {
       url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixago = {
+      url = "github:nix-community/nixago";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -131,6 +137,7 @@
           (functions "lib")
           # NixOS / Home Manager profiles
           (functions "profiles")
+          (functions "homeProfiles")
           # NixOS system configurations and VMs
           (nixosSystems "nixos")
           (microvms "vms")
