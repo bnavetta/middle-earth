@@ -1,4 +1,7 @@
-{ inputs, cell }: {
+{
+  inputs,
+  cell,
+}: {
   # groups.hosts = ["elessar"];
 
   secrets = [

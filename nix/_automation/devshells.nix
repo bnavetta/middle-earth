@@ -5,10 +5,10 @@
   lib = nixpkgs.lib // builtins;
 
   inherit (inputs) nixpkgs std;
-  inherit (inputs.cells) secrets;
-in
-  lib.mapAttrs (_: std.lib.dev.mkShell) {
-    default = {...}: {
+  inherit (inputs.cells) secrets pippin;
+in {
+  default =
+    (std.lib.dev.mkShell {
       name = "Middle Earth Devshell";
       nixago = [
         secrets.nixago.agenix
@@ -32,6 +32,8 @@ in
       imports = [
         # This adds the `std` CLI/TUI to the devshell
         std.std.devshellProfiles.default
+        pippin.devshellProfiles.default
       ];
-    };
-  }
+    })
+    // {meta.description = "Middle Earth Devshell";};
+}

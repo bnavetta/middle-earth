@@ -1,4 +1,3 @@
-# Common networking setup using the systemd stack and Tailscale
 {
   config,
   lib,
@@ -8,32 +7,16 @@
   cfg = config.middle-earth.networking;
 in {
   options = {
-    middle-earth.networking = {
-      expectedInterfaces = mkOption {
-        type = types.listOf types.str;
-        description = ''
-          Expected network interfaces that systemd-networkd-wait-online will wait
-          on before reporting that the network is online.
-        '';
-      };
-    };
   };
 
   config = {
-    assertions = [
-      {
-        assertion = cfg.expectedInterfaces != [];
-        message = "middle-earth.networking.expectedInterfaces cannot be empty. Otherwise startup will hang waiting on Tailscale.";
-      }
-    ];
-
     networking.useNetworkd = true;
 
     systemd.network = {
       enable = true;
+      # For some reason, Tailscale is never considered online. Also, many of my machines have WiFi connections.
+      wait-online.anyInterface = true;
     };
-
-    systemd.network.wait-online.extraArgs = map (i: "--interface=${i}") cfg.expectedInterfaces;
 
     services.resolved = {
       enable = true;
@@ -58,12 +41,8 @@ in {
       allowedUDPPorts = [config.services.tailscale.port];
     };
 
+    # Always-enabled networking services
     services.tailscale.enable = true;
-
-    # Enable SSH, but only via Tailscale (since the interface is trusted)
-    services.openssh = {
-      enable = true;
-      openFirewall = false;
-    };
+    services.openssh.enable = true;
   };
 }

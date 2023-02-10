@@ -6,8 +6,6 @@
   self,
   ...
 }: {
-  imports = [./users.nix ./networking.nix];
-
   # TODO: this is only useful on hosts with a display
   fonts.fonts = with pkgs; [apple-emoji];
 }

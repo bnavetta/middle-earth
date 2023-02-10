@@ -13,6 +13,7 @@
     };
   };
 
+  # Prefer iwd over wpa_supplicant - generally considered more efficient, and it ties in pretty well with systemd-networkd
   networking.wireless.iwd = {
     enable = true;
 
@@ -28,7 +29,4 @@
     file = ../secrets/pastafi.age;
     path = "/var/lib/iwd/pastafi.psk";
   };
-
-  # Allow SSH on all interfaces, not just tailscale
-  networking.firewall.allowedTCPPorts = [22];
 }

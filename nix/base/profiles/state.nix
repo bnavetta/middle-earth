@@ -109,7 +109,8 @@ in {
 
           If `zfs`, then ZFS filesystems are configured for the Nix store, backed-up state, and local state.
 
-          If `onefs`, then a single filesystem partition is used for the Nix store and all state.
+          If `onefs`, then a single filesystem partition is used for all state and this module does not
+          configure persistence for the Nix store.
         '';
       };
 
@@ -149,13 +150,15 @@ in {
       # Build an activation script for directories that were not relocated and can just be created outright.
       system.activationScripts."createDirectPersistentStorageDirs" = let
         directConfigs = filter (p: p.path == persistPath p.name p.safe) (attrValues cfg.persist);
-        # TODO
+        # TODO: this could be more robust
         installCmds = map (p: "mkdir -m ${p.mode} -p ${p.path} && chown ${p.user}:${p.group} ${p.path}") directConfigs;
       in {
         text = builtins.concatStringsSep "\n" installCmds;
       };
-      # So that the identity file is available
-      system.activationScripts.agenixInstall.deps = ["createDirectPersistentStorageDirs"];
+      # So that the identity file is available (agenixInstall is not defined if no secrets are in use)
+      system.activationScripts.agenixInstall = mkIf (config.age.secrets != {}) {
+        deps = ["createDirectPersistentStorageDirs"];
+      };
     }
 
     (mkIf (cfg.mode
@@ -190,13 +193,7 @@ in {
 
     (mkIf (cfg.mode
       == "onefs") {
-      environment.persistence.${localRoot}.directories = [
-        # TODO: may be too difficult to have /nix be a bind mount
-        # Could just create 2 partitions
-        "/nix"
-      ];
-
-      fileSystems."/nix".neededForBoot = true;
+      fileSystems."${localRoot}".neededForBoot = lib.mkForce true;
 
       # No distinction between local and safe
       environment.persistence."${localRoot}" = {

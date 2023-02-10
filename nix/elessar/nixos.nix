@@ -22,6 +22,7 @@
         };
       }
       inputs.cells.base.profiles.default
+      inputs.cells.ben.profiles.nixos
     ];
 
     meta.description = "NixOS desktop";

@@ -3,34 +3,23 @@
   config,
   pkgs,
   lib,
+  options,
   ...
 }: let
-  inherit (lib) mkIf mkMerge;
+  inherit (lib) mkIf mkMerge hasAttr;
 
-  # This is kind of janky - maybe use an option instead?
-  # isTestVM = config.networking.hostName == "testvm";
-  isTestVM = false;
+  isInVM = options ? microvm;
 
   coreConfig = {
-    # Also set SSH keys for root?
+    users.mutableUsers = false;
+
     users.users.sysadmin = {
       isNormalUser = true;
       extraGroups = ["wheel"];
-      openssh.authorizedKeys.keys = lib.identities.users.ben.ssh;
     };
   };
 
-  testConfig = {
-    users.users.root.password = "root";
-    users.users.sysadmin.password = "sysadmin";
-
-    warnings = [
-      ''
-        Detected a test VM. Using testing passwords instead of agenix-configured ones
-      ''
-    ];
-  };
-
+  # Config that can't be applied to VMs
   mainConfig = {
     age.secrets.rootPassword.file = ../../${config.networking.hostName}/secrets/root.age;
     age.secrets.sysadminPassword.file = ../secrets/sysadmin_password.age;
@@ -40,6 +29,5 @@
 in
   mkMerge [
     coreConfig
-    (mkIf isTestVM testConfig)
-    (mkIf (!isTestVM) mainConfig)
+    (mkIf (!isInVM) mainConfig)
   ]

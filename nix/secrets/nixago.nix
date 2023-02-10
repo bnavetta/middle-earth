@@ -44,7 +44,10 @@
   };
 
   # Substitution helpers
-  subst = defns: name: if lib.hasAttr name defns then defns.${name} else name;
+  subst = defns: name:
+    if lib.hasAttr name defns
+    then defns.${name}
+    else name;
 
   # Find all real cells, filtering out the system-specific entries
   # From https://github.com/divnix/std/blob/ec62c8acb468708902735dc037225e46a49f8bdc/cells/std/nixago/conform.nix#L25
@@ -59,18 +62,29 @@
     unresolved = lib.zipAttrsWith (_: values: lib.flatten values) (lib.catAttrs "groups" configs);
     # Then, resolve identities
     resolved = lib.mapAttrs (_: members: lib.map (subst identities) members) unresolved;
-  in resolved;
+  in
+    resolved;
 
   # Now, construct rules from each cell
   # This logic to figure out the relative path is kind of bleh
   rules = let
     mkRule = cell: rule: let
       path = "nix/${cell}/${rule.path}";
-      directIdentities = if rule ? identities then lib.map (subst identities) rule.identities else [];
-      groupIdentities = if rule ? groups then lib.concatMap (subst groups) rule.groups else [];
-    in { name = path; value = { publicKeys = directIdentities ++ groupIdentities; }; };
+      directIdentities =
+        if rule ? identities
+        then lib.map (subst identities) rule.identities
+        else [];
+      groupIdentities =
+        if rule ? groups
+        then lib.concatMap (subst groups) rule.groups
+        else [];
+    in {
+      name = path;
+      value = {publicKeys = directIdentities ++ groupIdentities;};
+    };
     mkCellRules = cell: lib.map (mkRule cell) (lib.attrByPath ["secrets" "secrets"] [] inputs.cells.${cell});
-  in lib.listToAttrs (lib.concatMap mkCellRules cellNames);
+  in
+    lib.listToAttrs (lib.concatMap mkCellRules cellNames);
 
   evaluated = lib.evalModules {
     modules = [schemaModule] ++ configs;

@@ -4,8 +4,6 @@
   pkgs,
   ...
 }: {
-  nixpkgs.config.allowUnfree = true;
-
   imports = [
     inputs.ragenix.nixosModules.age
     inputs.home-manager.nixosModules.home-manager
@@ -93,9 +91,28 @@
   # Nix settings #
   ################
 
-  # See https://nixos.wiki/wiki/Storage_optimization
+  nixpkgs.config.allowUnfree = true;
+
   nix = {
     settings = {
+      # Keep in sync with nixConfig in flake.nix. The configuration there must be a literal expression, so we can't import from a shared location.
+      substituters = [
+        "https://cache.nixos.org"
+        "https://nrdxp.cachix.org"
+        "https://nix-community.cachix.org"
+        "https://nixpkgs-wayland.cachix.org"
+        "https://microvm.cachix.org"
+      ];
+
+      trusted-public-keys = [
+        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+        "nrdxp.cachix.org-1:Fc5PSqY2Jm1TrWfm88l6cvGWwz3s93c6IOifQWnhNW4="
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
+        "microvm.cachix.org-1:oXnBc6hRE3eX5rSYdRyMYXnfzcCxC7yKPTbZXALsqys="
+      ];
+
+      # See https://nixos.wiki/wiki/Storage_optimization
       auto-optimise-store = true;
       # Sandbox when building to catch impure builds
       sandbox = true;
