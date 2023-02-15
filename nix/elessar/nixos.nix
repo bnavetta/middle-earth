@@ -1,18 +1,16 @@
 {
   inputs,
   cell,
-}: {
-  elessar = inputs.cells.lib.lib.mkSystem {
+}: let
+  inherit (inputs.cells) base ben lib;
+in {
+  elessar = lib.lib.mkSystem {
     name = "elessar";
     system = "x86_64-linux";
     modules = [
       {
         system.stateVersion = "23.05";
 
-        # TODO: should be able to auto-configure this per host
-        # TODO: https://discourse.nixos.org/t/impermanence-a-file-already-exists-at-etc-machine-id/20267/5
-        # machine-id is theoretically confidential?
-        environment.etc.machine-id.text = "0b8a8daa064f43d49c14ad709903ef43";
         networking.hostId = "0b8a8daa";
 
         fileSystems."/efi" = {
@@ -20,9 +18,29 @@
           fsType = "vfat";
           neededForBoot = true;
         };
+
+        # Despite the name, this works for Wayland too
+        services.xserver.videoDrivers = ["nvidia"];
+
+        # Set up for running aarch64 binaries with QEMU, including for Nix cross-builds to a Raspberry Pi
+        # This also supports x86_64-windows, would that cover Wine?
+        boot.binfmt.emulatedSystems = ["aarch64-linux"];
+
+        # Monitor UPS state
+        power.ups.enable = true;
+        power.ups.mode = "standalone";
+
+        # Colmena setup
+        deployment = {
+          tags = ["local" "desktop"];
+          allowLocalDeployment = true;
+          targetHost = "elessar.local";
+        };
       }
-      inputs.cells.base.profiles.default
-      inputs.cells.ben.profiles.nixos
+      base.profiles.default
+      base.profiles.development
+      base.profiles.lan
+      ben.profiles.nixos
     ];
 
     meta.description = "NixOS desktop";

@@ -1,0 +1,19 @@
+[latex-utilities]
+src.vsmarketplace = "tecosaur.latex-utilities"
+fetch.vsmarketplace = "tecosaur.latex-utilities"
+passthru = { publisher = "tecosaur" }
+
+[vscode-yaml]
+src.vsmarketplace = "redhat.vscode-yaml"
+fetch.vsmarketplace = "redhat.vscode-yaml"
+passthru = { publisher = "redhat" }
+
+[vscode-pets]
+src.vsmarketplace = "tonybaloney.vscode-pets"
+fetch.vsmarketplace = "tonybaloney.vscode-pets"
+passthru = { publisher = "tonybaloney" }
+
+[nix-ide]
+src.vsmarketplace = "jnoortheen.nix-ide"
+fetch.vsmarketplace = "jnoortheen.nix-ide"
+passthru = { publisher = "jnoortheen" }

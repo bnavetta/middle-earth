@@ -28,4 +28,5 @@ in {
 
   lan = mkModule "Local network configuration" (import ./profiles/lan.nix);
   desktop = mkModule "Desktop environment" (import ./profiles/desktop {inherit inputs;});
+  development = mkModule "Development environment" (import ./profiles/development);
 }

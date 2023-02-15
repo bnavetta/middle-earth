@@ -2,10 +2,11 @@
   inputs,
   cell,
 }: let
-  lib = inputs.nixpkgs.lib // builtins;
+  inherit (inputs) nixpkgs colmena;
+  lib = nixpkgs.lib // builtins;
 
   # Adapted from mkMicrovm - the the baseline `lib` doesn't have a `nixosSystem` function (I guess it's not instantiated enough?)
-  nixosSystem = args: import "${inputs.nixpkgs.path}/nixos/lib/eval-config.nix" (args // {modules = args.modules;});
+  nixosSystem = args: import "${nixpkgs.path}/nixos/lib/eval-config.nix" (args // {modules = args.modules;});
 in {
   # mkSystem is a function used by `nixosSystem` cell blocks to build NixOS configurations.
   #
@@ -30,6 +31,11 @@ in {
     instantiatedSystem = nixosSystem {
       inherit system;
       modules = modules ++ autoModules;
+      extraModules = [
+        # See https://github.com/zhaofengli/colmena/issues/60#issuecomment-1047199551
+        # Putting this in extraModules means it won't interfere with colmena deployment while allowing reuse between colmena and nixos-rebuild
+        colmena.nixosModules.deploymentOptions
+      ];
     };
   in
     instantiatedSystem

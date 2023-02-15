@@ -1,0 +1,70 @@
+{
+    "latex-utilities": {
+        "cargoLocks": null,
+        "date": null,
+        "extract": null,
+        "name": "latex-utilities",
+        "passthru": {
+            "publisher": "tecosaur"
+        },
+        "pinned": false,
+        "src": {
+            "name": "latex-utilities-0.4.9.zip",
+            "sha256": "sha256-QCC690iT0Zls0ks7A66QiURO8yRZ4no4e4Bxfg6Fwpo=",
+            "type": "url",
+            "url": "https://tecosaur.gallery.vsassets.io/_apis/public/gallery/publisher/tecosaur/extension/latex-utilities/0.4.9/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+        },
+        "version": "0.4.9"
+    },
+    "nix-ide": {
+        "cargoLocks": null,
+        "date": null,
+        "extract": null,
+        "name": "nix-ide",
+        "passthru": {
+            "publisher": "jnoortheen"
+        },
+        "pinned": false,
+        "src": {
+            "name": "nix-ide-0.2.1.zip",
+            "sha256": "sha256-yC4ybThMFA2ncGhp8BYD7IrwYiDU3226hewsRvJYKy4=",
+            "type": "url",
+            "url": "https://jnoortheen.gallery.vsassets.io/_apis/public/gallery/publisher/jnoortheen/extension/nix-ide/0.2.1/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+        },
+        "version": "0.2.1"
+    },
+    "vscode-pets": {
+        "cargoLocks": null,
+        "date": null,
+        "extract": null,
+        "name": "vscode-pets",
+        "passthru": {
+            "publisher": "tonybaloney"
+        },
+        "pinned": false,
+        "src": {
+            "name": "vscode-pets-1.22.0.zip",
+            "sha256": "sha256-0AVKNePQe8Kp0phxXefLKnWIH3SjIurUQlrnmEnMs2s=",
+            "type": "url",
+            "url": "https://tonybaloney.gallery.vsassets.io/_apis/public/gallery/publisher/tonybaloney/extension/vscode-pets/1.22.0/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+        },
+        "version": "1.22.0"
+    },
+    "vscode-yaml": {
+        "cargoLocks": null,
+        "date": null,
+        "extract": null,
+        "name": "vscode-yaml",
+        "passthru": {
+            "publisher": "redhat"
+        },
+        "pinned": false,
+        "src": {
+            "name": "vscode-yaml-1.11.10112022.zip",
+            "sha256": "sha256-/ZD3LOf6d5dJJW7eGZgkrf4hj1CXZJNI0u06Bnmyo0Q=",
+            "type": "url",
+            "url": "https://redhat.gallery.vsassets.io/_apis/public/gallery/publisher/redhat/extension/vscode-yaml/1.11.10112022/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+        },
+        "version": "1.11.10112022"
+    }
+}

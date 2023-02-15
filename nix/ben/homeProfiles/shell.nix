@@ -1,42 +1,46 @@
-{
-  profiles,
-  pkgs,
-  lib,
-  ...
-}: let
-  # extraImports = builtins.trace pkgs.stdenv.hostPlatform.isDarwin [];
-  # if pkgs.stdenv.hostPlatform.isLinux
-  # then [profiles.nix-desktop]
-  # else if pkgs.stdenv.hostPlatform.isDarwin
-  # then []
-  # else [];
+{pkgs, ...}: let
 in {
-  home.stateVersion = "23.05";
-
-  # imports = [profiles.shell profiles.nix-desktop]; # ++ extraImports;
-
-  programs.home-manager.enable = true;
-
   home.packages = with pkgs; [
-    bat
-    btop
-    exa
+    doctl
+    flyctl
+    gh
+    httpie
+    hyperfine
+    imagemagick
+    just
+    kubectl
   ];
+
+    programs.git = {
+    enable = true;
+
+    extraConfig = {
+      diff.colorMoved = "default";
+      init.defaultBranch = "main";
+    };
+
+    delta = {
+      enable = true;
+      options = {
+        side-by-side = true;
+        line-numbers = true;
+        hyperlinks = true;
+        navigate = true; # use n and N to move between files
+        features = "zebra-dark"; # used for color-moved
+      };
+    };
+  };
 
   programs.direnv.enable = true;
   programs.direnv.nix-direnv.enable = true;
 
   programs.zsh = {
     enable = true;
-
-    shellAliases = {
-      ls = "exa --classify --color-scale --git -g --icons";
-      cat = "bat";
-    };
   };
 
   programs.starship = {
     enable = true;
+    enableZshIntegration = true;
 
     settings = {
       add_newline = true;

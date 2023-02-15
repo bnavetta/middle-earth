@@ -1,5 +1,5 @@
 # NixOS profile for devices on the local network
-{...}: {
+{lib, ...}: {
   # Enable Avahi for mDNS
   services.avahi = {
     enable = true;
@@ -14,6 +14,7 @@
   };
 
   # Prefer iwd over wpa_supplicant - generally considered more efficient, and it ties in pretty well with systemd-networkd
+  networking.wireless.enable = lib.mkForce false;
   networking.wireless.iwd = {
     enable = true;
 

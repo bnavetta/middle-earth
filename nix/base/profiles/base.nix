@@ -1,21 +1,16 @@
 {inputs}: {
   config,
+  options,
   lib,
   pkgs,
   ...
-}: {
+}: let
+  isMicroVM = options ? microvm;
+  notMicroVM = !isMicroVM;
+in {
   imports = [
     inputs.ragenix.nixosModules.age
     inputs.home-manager.nixosModules.home-manager
-  ];
-
-  middle-earth.state.persist.age = {
-    mode = "0700";
-    safe = true;
-  };
-
-  age.identityPaths = [
-    "${config.middle-earth.state.persist.age.path}/identity.txt"
   ];
 
   #############################
@@ -27,25 +22,31 @@
     # This also ensures they're available if home-manager and/or nix-shell aren't working
     systemPackages = with pkgs;
       [
+        atop
+        bat-extras.batman
         binutils
+        btop
         coreutils
         curl
         dnsutils
-        fd
         exa
-        hwinfo
+        fd
+        file
+        fzf
         git
+        hexyl
+        htop
+        hwinfo
         jq
-        bat-extras.batman
+        lsof
         manix
         nix-info
         nmap
-        lsof
+        pciutils
         ripgrep
+        rsync
+        tmux
         vim
-        btop
-        htop
-        atop
       ]
       ++ (lib.optionals (config.virtualisation.oci-containers.containers != {}) [pkgs.podman]);
 
@@ -94,7 +95,15 @@
   nixpkgs.config.allowUnfree = true;
 
   nix = {
+    nixPath = [
+      # This enables nix-shell for testing out packages ad-hoc
+      "nixpkgs=${inputs.nixpkgs.sourceInfo.outPath}"
+      "home-manager=${inputs.home-manager}"
+    ];
+
     settings = {
+      extra-experimental-features = ["nix-command" "flakes"];
+
       # Keep in sync with nixConfig in flake.nix. The configuration there must be a literal expression, so we can't import from a shared location.
       substituters = [
         "https://cache.nixos.org"
@@ -113,7 +122,7 @@
       ];
 
       # See https://nixos.wiki/wiki/Storage_optimization
-      auto-optimise-store = true;
+      auto-optimise-store = lib.mkIf notMicroVM true;
       # Sandbox when building to catch impure builds
       sandbox = true;
 
@@ -122,7 +131,7 @@
       allowed-users = ["@wheel"];
     };
 
-    optimise.automatic = true;
+    optimise.automatic = lib.mkIf notMicroVM true;
 
     gc = {
       automatic = true;
@@ -133,8 +142,8 @@
     # This keeps nix shells from getting garbage-collected
     extraOptions = ''
       #min-free = 536870912
-      # keep-outputs = true
-      # keep-derivations = true
+      keep-outputs = true
+      keep-derivations = true
       fallback = true
     '';
   };

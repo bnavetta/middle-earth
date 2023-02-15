@@ -48,8 +48,13 @@ in {
         "usb-kbd"
       ];
 
+      vcpu = 4;
+      mem = 2 * 1024;
+
       # Ensure the volume directory exists on the host
       preStart = "mkdir -p ${volumeDir}";
+
+      writableStoreOverlay = "/nix/.rw-store";
 
       volumes = [
         {

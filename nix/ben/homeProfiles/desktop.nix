@@ -23,15 +23,17 @@
           "alpha"
           "animate"
           "autostart"
-          "commad"
+          "command"
           "cube"
           "decoration"
           "expo"
           "fast-switcher"
           "fisheye"
-          "foreign-toplevel"
+          # Added recently
+          # "foreign-toplevel"
           "grid"
-          "gtk-shell"
+          # Added recently
+          # "gtk-shell"
           "idle"
           "invert"
           "move"
@@ -262,8 +264,12 @@ in {
     alacritty
     font-awesome
     nixpkgs-wayland.packages.wlr-randr
+    firefox
+    google-chrome
+    zoom-us
   ];
 
   xdg.enable = true;
   xdg.configFile."wayfire.ini".source = wayfireConfig.configFile;
+  xdg.configFile."wofi/config".text = "mode=drun,run";
 }

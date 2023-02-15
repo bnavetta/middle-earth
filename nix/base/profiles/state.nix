@@ -1,5 +1,6 @@
 {inputs}: {
   config,
+  options,
   lib,
   pkgs,
   ...
@@ -80,6 +81,8 @@
 in {
   imports = [
     inputs.impermanence.nixosModules.impermanence
+    (lib.mkAliasOptionModule ["middle-earth" "state" "users" "safe"] ["environment" "persistence" cfg.safeRoot "users"])
+    (lib.mkAliasOptionModule ["middle-earth" "state" "users" "local"] ["environment" "persistence" cfg.localRoot "users"])
   ];
 
   options = {
@@ -115,14 +118,6 @@ in {
         example = "mypool/parent/dataset";
         description = mdDoc ''
           Path to the ZFS storage pool (and optionally, parent dataset), to put state datasets in.
-        '';
-      };
-
-      users = mkOption {
-        type = types.listOf types.str;
-        default = [];
-        description = ''
-          Users who need persistent state directories
         '';
       };
 
@@ -209,14 +204,6 @@ in {
         hideMounts = true;
         directories = impermanenceDirs.safe;
       };
-
-      # middle-earth.state.persist = lib.listToAttrs (lib.map (name: {
-      #   inherit name;
-      #   value = {
-      #     user = name;
-      #     group = name;
-      #   };
-      # }) cfg.users);
     })
 
     (mkIf (cfg.mode
@@ -229,22 +216,27 @@ in {
         directories = impermanenceDirs.local ++ impermanenceDirs.safe;
       };
     })
-
-    # Default persistence settings
     {
-      
-      middle-earth.state.persist = let
-        mkEntry = safe: name: {
-          name = if safe then "${name}-safe" else "${name}-local";
-          value = {
-            inherit name;
-            user = name;
-            group = name;
-          };
-        };
-        userSafe = map (mkEntry true) cfg.users;
-        userLocal = map (mkEntry false) cfg.users;
-      in lib.listToAttrs (userSafe ++ userLocal);
+      # Default state configuration
+      middle-earth.state.persist.age = {
+        mode = "0700";
+        safe = true;
+      };
+      middle-earth.state.persist.ssh.safe = true;
+      age.identityPaths = ["${cfg.persist.age.path}/identity.txt"];
+      services.openssh.hostKeys = [
+        {
+          path = "${cfg.persist.ssh.path}/ssh_host_ed25519_key";
+          type = "ed25519";
+        }
+        {
+          path = "${cfg.persist.ssh.path}/ssh_host_rsa_key";
+          type = "rsa";
+          bits = 4096;
+        }
+      ];
+      # This uses environment.persistence directly so we can bind-mount /etc/machine-id as a file
+      environment.persistence."${cfg.localRoot}".files = ["/etc/machine-id"];
     }
   ];
 

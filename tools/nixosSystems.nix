@@ -22,16 +22,37 @@
       fragmentRelPath,
       target,
     }: let
-      # TODO: look at https://github.com/zhaofengli/colmena instead of deploy-rs - built-in support for cross-deployment and local deployment
-    in [
-      (mkCommand system {
-        name = "closure";
-        description = "Build the system closure";
-        command = ''
-          echo ${target.config.system.build.toplevel}
-        '';
-      })
-    ];
+      hostName = lib.baseNameOf fragmentRelPath;
+      # Check if colmena is set up for local or remote deployment
+      inherit (target.config.deployment) allowLocalDeployment targetHost;
+    in
+      [
+        (mkCommand system {
+          name = "closure";
+          description = "Build the system closure";
+          command = ''
+            echo ${target.config.system.build.toplevel}
+          '';
+        })
+      ]
+      ++ (lib.optionals allowLocalDeployment [
+        (mkCommand system {
+          name = "apply-local";
+          description = "Apply the system configuration locally";
+          command = ''
+            colmena apply-local --sudo "$@"
+          '';
+        })
+      ])
+      ++ (lib.optionals (targetHost != null) [
+        (mkCommand system {
+          name = "apply";
+          description = "Apply the system configuration remotely";
+          command = ''
+            colmena apply --on ${hostName} "$@"
+          '';
+        })
+      ]);
   };
 in
   nixosSystems

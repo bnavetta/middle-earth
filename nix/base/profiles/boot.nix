@@ -32,6 +32,8 @@ in {
       }
     ];
 
+    environment.systemPackages = with pkgs; [mokutil sbctl];
+
     boot.loader = {
       grub.enable = false;
 

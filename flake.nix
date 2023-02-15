@@ -52,6 +52,10 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    colmena = {
+      url = "github:zhaofengli/colmena";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # system utilities
 
@@ -141,6 +145,7 @@
           # NixOS system configurations and VMs
           (nixosSystems "nixos")
           (microvms "vms")
+          (runnables "ops")
           # Nixago templates
           (nixago "nixago")
           # Developer shells
@@ -163,7 +168,7 @@
         inputs.mission-control.flakeModule
         inputs.treefmt.flakeModule
         inputs.pre-commit-hooks-nix.flakeModule
-        ./tools/devshell.nix
+        ./tools/colmena.nix
       ];
 
       systems = ["x86_64-linux" "x86_64-darwin" "aarch64-linux"];

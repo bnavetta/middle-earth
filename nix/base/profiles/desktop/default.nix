@@ -32,13 +32,25 @@ in
       /run/current-system/systemd/bin/systemctl --user stop graphical-session.target
     '';
   in {
+    imports = [
+      ./yubikey.nix
+      ./audio.nix
+      ./ios.nix
+    ];
+
     environment.systemPackages = [
       waylandSession
       pkgs.wayland-utils
       pkgs.mesa
       pkgs.weston
+      pkgs.vlc
+      pkgs.google-chrome
+      pkgs.okular
       nixpkgs-wayland.packages.wayfire-unstable
     ];
+
+    programs.firefox.enable = true;
+    programs._1password-gui.enable = true;
 
     # In addition to installing sway, applies NixOS-specific setup
     programs.sway = {

@@ -20,3 +20,8 @@ This requires Nix with Flakes support. To deploy to a Raspberry Pi, cross-compil
 [wiki](https://nixos.wiki/wiki/NixOS_on_ARM#Compiling_through_binfmt_QEMU) to set up QEMU for building.
 
 An [age-plugin-yubikey](https://github.com/str4d/age-plugin-yubikey) identity is configured according to https://github.com/ryantm/agenix/issues/115
+
+## TODOs
+
+- Automatic updates using Colmena and a GitHub app
+- Restic backups
