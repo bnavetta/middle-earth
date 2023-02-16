@@ -57,13 +57,17 @@
           base.profiles.base
           base.profiles.networking
           base.profiles.lan
-          # "${modulesPath}/profiles/installation-device.nix"
+          # nixos-generators' install-iso format already adds the installation-cd-base.nix module,
+          # so this isn't entirely necessary
+          # (https://github.com/nix-community/nixos-generators/blob/1e0a05219f2a557d4622bc38f542abb360518795/formats/install-iso.nix)
+          # However, the minimal profile sets a few extra options for cache-friendliness (at the cost
+          # of making the installer a little larger)
+          # (https://github.com/NixOS/nixpkgs/blob/a64c98dcfa0881b86268a74001e74fa27f3cb65c/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix)
           "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
         ];
 
         system.stateVersion = "23.05";
 
-        # boot.loader.systemd-boot.enable = true;
         boot.kernelPackages = pkgs.linuxPackages_latest;
         boot.supportedFilesystems = [ "zfs" ];
 
@@ -119,12 +123,13 @@
       echo
       if [[ $REPLY =~ ^[Yy]$ ]]; then
         expected="$(shasum -a 256 "$iso" | awk '{ print $1 }')"
-        actual="$(sudo shasum -a 512 "$dev" | awk '{ print $1 }')"
+        echo "ISO image hash: $expected"
+        actual="$(sudo shasum -a 256 "$dev" | awk '{ print $1 }')"
+        echo "Device hash: $actual"
         if [[ "$expected" != "$actual" ]]; then
           echo >&2 "Hashes are different!"
-          echo >&2 "Expected: $expected"
-          echo >&2 "Actual: $actual"
           exit 1
+        fi
       fi
     '';
 in {
