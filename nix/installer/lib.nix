@@ -6,9 +6,14 @@
   inherit (inputs.cells) base ben;
   lib = nixpkgs.lib // builtins;
 
+  # Builds a derivation for an installer ISO
   mkInstaller = sys: let
     localRoot = sys.config.middle-earth.state.localRoot;
     safeRoot = sys.config.middle-earth.state.safeRoot;
+    hostName = sys.config.networking.hostName;
+    ageRootIdentity = ../ben/age-identities.txt;
+    ageIdentitySrc = ../${hostName}/secrets/identity.age;
+    ageIdentityDest = sys.config.middle-earth.state.persist.age.path;
     installScript = nixpkgs.writeShellScriptBin "install-system" ''
       set -euo pipefail
 
@@ -22,7 +27,6 @@
       }
 
       # TODO: partitioning
-      # TODO: age identity
 
       if ! is_mounted "/mnt/${localRoot}"; then
         die "${localRoot} is not mounted under /mnt"
@@ -34,6 +38,10 @@
 
       echo "Generating machine ID..."
       systemd-machine-id-setup --root="/mnt/${localRoot}" --print
+
+      echo "Installing age identity..."
+      mkdir -p "$(dirname "/mnt/${ageIdentityDest}")"
+      age --decrypt -i "${ageRootIdentity}" -o "/mnt/${ageIdentityDest}" "${ageIdentitySrc}"
 
       echo "Installing system..."
       sudo nixos-install --system ${sys.config.system.build.toplevel} --no-root-password
@@ -62,6 +70,8 @@
 
         environment.systemPackages = [
           installScript
+          pkgs.age
+          pkgs.age-plugin-yubikey
         ];
       })
     ];
@@ -71,6 +81,25 @@
       system = sys.config.nixpkgs.system;
       inherit modules;
     };
+
+  # Builds a script that flashes an installer ISO
+  mkFlash = name: image: let
+    pv = lib.getExe nixpkgs.pv;
+    fzf = lib.getExe nixpkgs.fzf;
+  in
+    nixpkgs.writeShellScriptBin name ''
+      set -euo pipefail
+
+      # From https://aldoborrero.com/posts/2023/01/15/setting-up-my-machines-nix-style/
+      dev="/dev/$(lsblk -d -n --output RM,NAME,FSTYPE,SIZE,LABEL,TYPE,VENDOR,UUID | awk '{ if ($1 == 1) { print } }' | ${fzf} --height='~20%' | awk '{print $2}')"
+
+      echo "Image: $(du -sh ${image})"
+      read -p "Flash to $dev? " -n 1 -r
+      echo
+      if [[ $REPLY =~ ^[Yy]$ ]]; then
+        ${pv} -tpreb "${image}" | sudo dd bs=4M of="$dev" iflag=fullblock conv=notrunc,noerror oflag=sync
+      fi
+    '';
 in {
-  inherit mkInstaller;
+  inherit mkInstaller mkFlash;
 }

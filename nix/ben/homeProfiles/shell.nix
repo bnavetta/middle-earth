@@ -11,7 +11,7 @@ in {
     kubectl
   ];
 
-    programs.git = {
+  programs.git = {
     enable = true;
 
     extraConfig = {

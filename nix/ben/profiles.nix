@@ -13,9 +13,11 @@ in {
     # Also set SSH keys for root?
     users.users.sysadmin.openssh.authorizedKeys.keys = cell.lib.sshKeys;
 
+    age.secrets.ben_password.file = ./secrets/password.age;
+
     users.users.ben = {
-      # TODO: password file
-      password = "ben";
+      
+      passwordFile = config.age.secrets.ben_password.path;
       description = "Ben";
       isNormalUser = true;
       createHome = true;

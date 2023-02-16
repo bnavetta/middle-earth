@@ -10,34 +10,11 @@ in {
   default =
     (std.lib.dev.mkShell {
       name = "Middle Earth Devshell";
-      nixago = [
-        secrets.nixago.agenix
-      ];
-
-      packages = [
-        nixpkgs.age-plugin-yubikey
-      ];
 
       commands = [
         {
-          package = nixpkgs.age;
-          category = "Ops";
-        }
-        {
           package = colmena.packages.colmena;
           category = "Ops";
-        }
-        {
-          name = "agepasswd";
-          category = "Ops";
-          help = "Generate a Linux password hash secret";
-          command = ''
-            if [[ $# -ne 1 ]]; then
-              echo >&2 "Usage: agepasswd <path-to-secret>"
-              exit 1
-            fi
-            ${lib.getExe nixpkgs.mkpasswd} -m yescrypt | agenix --editor - --edit "$1"
-          '';
         }
         {
           package = nixpkgs.manix;
@@ -67,6 +44,7 @@ in {
         # This adds the `std` CLI/TUI to the devshell
         std.std.devshellProfiles.default
         pippin.devshellProfiles.default
+        secrets.devshellProfiles.default
       ];
     })
     // {meta.description = "Middle Earth Devshell";};

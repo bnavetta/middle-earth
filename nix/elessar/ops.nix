@@ -4,6 +4,9 @@
 }: let
   inherit (inputs.cells) installer;
   inherit (cell) nixos;
+
+  inst = installer.lib.mkInstaller nixos.elessar;
 in {
-  installer = installer.lib.mkInstaller nixos.elessar;
+  installer = inst;
+  flash = installer.lib.mkFlash "flash-elessar-installer" inst;
 }

@@ -11,7 +11,8 @@
     }
     {
       path = "secrets/pastafi.age";
-      groups = []; # TODO: lan group?
+      identities = ["elessar"];
+      groups = ["admins"]; # TODO: lan group?
     }
   ];
 }
