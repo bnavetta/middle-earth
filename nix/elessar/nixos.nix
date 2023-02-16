@@ -27,7 +27,7 @@ in {
 
         # Set up for running aarch64 binaries with QEMU, including for Nix cross-builds to a Raspberry Pi
         # This also supports x86_64-windows, would that cover Wine?
-        boot.binfmt.emulatedSystems = ["aarch64-linux"];
+        # boot.binfmt.emulatedSystems = ["aarch64-linux"];
 
         # Monitor UPS state
         power.ups.enable = true;
