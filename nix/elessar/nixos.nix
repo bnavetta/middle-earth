@@ -24,6 +24,7 @@ in {
 
         # Despite the name, this works for Wayland too
         services.xserver.videoDrivers = ["nvidia"];
+        hardware.nvidia.modesetting.enable = true;
 
         # Set up for running aarch64 binaries with QEMU, including for Nix cross-builds to a Raspberry Pi
         # This also supports x86_64-windows, would that cover Wine?
