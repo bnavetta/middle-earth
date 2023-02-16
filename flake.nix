@@ -171,7 +171,9 @@
         ./tools/colmena.nix
       ];
 
-      systems = ["x86_64-linux" "x86_64-darwin" "aarch64-linux"];
+      # systems = ["x86_64-linux" "x86_64-darwin" "aarch64-linux"];
+      # Linux only to unblock install
+      systems = [ "x86_64-linux" ];
 
       perSystem = {
         config,
