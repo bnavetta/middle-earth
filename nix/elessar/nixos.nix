@@ -32,6 +32,9 @@ in {
         # Monitor UPS state
         power.ups.enable = true;
         power.ups.mode = "standalone";
+        # According to https://github.com/NixOS/nixpkgs/blob/c43f676c938662072772339be6269226c77b51b8/nixos/modules/services/monitoring/ups.nix#L231-L238,
+        # this file is sensitive... TBD what's supposed to be in it
+        etc."nut/upsd.conf".source = "";
 
         # Colmena setup
         deployment = {
@@ -41,6 +44,7 @@ in {
         };
       }
       base.profiles.default
+      base.profiles.desktop
       base.profiles.development
       base.profiles.lan
       ben.profiles.nixos
