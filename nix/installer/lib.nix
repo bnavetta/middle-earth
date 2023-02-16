@@ -81,7 +81,7 @@
     ];
   in
     nixos-generators.nixosGenerate {
-      format = "iso";
+      format = "install-iso";
       system = sys.config.nixpkgs.system;
       inherit modules;
     };
@@ -109,6 +109,22 @@
       echo
       if [[ $REPLY =~ ^[Yy]$ ]]; then
         ${pv} -tpreb "$iso" | sudo dd bs=4M of="$dev" iflag=fullblock conv=notrunc,noerror oflag=sync
+        sudo sync
+      fi
+
+      echo "Done!"
+      sudo fdisk -l "$dev"
+
+      read -p "Verify hashes? " -n 1 -r
+      echo
+      if [[ $REPLY =~ ^[Yy]$ ]]; then
+        expected="$(shasum -a 256 "$iso" | awk '{ print $1 }')"
+        actual="$(sudo shasum -a 512 "$dev" | awk '{ print $1 }')"
+        if [[ "$expected" != "$actual" ]]; then
+          echo >&2 "Hashes are different!"
+          echo >&2 "Expected: $expected"
+          echo >&2 "Actual: $actual"
+          exit 1
       fi
     '';
 in {
