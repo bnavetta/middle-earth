@@ -91,13 +91,15 @@
       set -euo pipefail
 
       # From https://aldoborrero.com/posts/2023/01/15/setting-up-my-machines-nix-style/
+      iso="${image}/iso/nixos.iso"
       dev="/dev/$(lsblk -d -n --output RM,NAME,FSTYPE,SIZE,LABEL,TYPE,VENDOR,UUID | awk '{ if ($1 == 1) { print } }' | ${fzf} --height='~20%' | awk '{print $2}')"
 
-      echo "Image: $(du -sh ${image})"
+      echo "Image:"
+      ls -lh "$iso"
       read -p "Flash to $dev? " -n 1 -r
       echo
       if [[ $REPLY =~ ^[Yy]$ ]]; then
-        ${pv} -tpreb "${image}" | sudo dd bs=4M of="$dev" iflag=fullblock conv=notrunc,noerror oflag=sync
+        ${pv} -tpreb "$iso" | sudo dd bs=4M of="$dev" iflag=fullblock conv=notrunc,noerror oflag=sync
       fi
     '';
 in {
