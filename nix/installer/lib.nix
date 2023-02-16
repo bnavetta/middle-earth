@@ -13,7 +13,7 @@
     hostName = sys.config.networking.hostName;
     ageRootIdentity = ../ben/age-identities.txt;
     ageIdentitySrc = ../${hostName}/secrets/identity.age;
-    ageIdentityDest = sys.config.middle-earth.state.persist.age.path;
+    ageIdentityDest = lib.head sys.config.age.identityPaths;
     installScript = nixpkgs.writeShellScriptBin "install-system" ''
       set -euo pipefail
 
@@ -64,6 +64,9 @@
 
         boot.loader.systemd-boot.enable = true;
         boot.kernelPackages = pkgs.linuxPackages_latest;
+        boot.supportedFilesystems = [ "zfs" ];
+
+        networking.hostId = "4a7cf688";
 
         users.users.root.openssh.authorizedKeys.keys = ben.lib.sshKeys;
         users.users.nixos.openssh.authorizedKeys.keys = ben.lib.sshKeys;

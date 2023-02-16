@@ -178,6 +178,8 @@ in {
 
     (mkIf (cfg.mode
       == "zfs") {
+      boot.supportedFilesystems = [ "zfs" ];
+
       fileSystems."/nix" = {
         device = "${cfg.zfs.parent}/local/nix";
         fsType = "zfs";
