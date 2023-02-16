@@ -18,6 +18,9 @@ in {
           fsType = "vfat";
           neededForBoot = true;
         };
+        
+        # Ensure the NVMe kernel module is in the initrd
+        boot.initrd.availableKernelModules = [ "nvme" ];
 
         # Despite the name, this works for Wayland too
         services.xserver.videoDrivers = ["nvidia"];
