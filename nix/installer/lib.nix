@@ -57,12 +57,13 @@
           base.profiles.base
           base.profiles.networking
           base.profiles.lan
-          "${modulesPath}/profiles/installation-device.nix"
+          # "${modulesPath}/profiles/installation-device.nix"
+          "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
         ];
 
         system.stateVersion = "23.05";
 
-        boot.loader.systemd-boot.enable = true;
+        # boot.loader.systemd-boot.enable = true;
         boot.kernelPackages = pkgs.linuxPackages_latest;
         boot.supportedFilesystems = [ "zfs" ];
 
@@ -85,7 +86,7 @@
       inherit modules;
     };
 
-  # Builds a script that flashes an installer ISO
+  # Builds a script that flashes an installer ISO to a USB drive
   mkFlash = name: image: let
     pv = lib.getExe nixpkgs.pv;
     fzf = lib.getExe nixpkgs.fzf;
@@ -94,8 +95,13 @@
       set -euo pipefail
 
       # From https://aldoborrero.com/posts/2023/01/15/setting-up-my-machines-nix-style/
-      iso="${image}/iso/nixos.iso"
-      dev="/dev/$(lsblk -d -n --output RM,NAME,FSTYPE,SIZE,LABEL,TYPE,VENDOR,UUID | awk '{ if ($1 == 1) { print } }' | ${fzf} --height='~20%' | awk '{print $2}')"
+      iso="$(find "${image}/iso" -name '*.iso')"
+
+      if [[ $# -gt 0 ]]; then
+        dev="$1"
+      else
+        dev="/dev/$(lsblk -l -n --output RM,NAME,FSTYPE,SIZE,LABEL,TYPE,VENDOR,UUID | awk '{ if ($1 == 1) { print } }' | ${fzf} --height='~20%' | awk '{print $2}')"
+      fi
 
       echo "Image:"
       ls -lh "$iso"

@@ -40,6 +40,7 @@ in {
         "Pictures"
         "Documents"
         "Videos"
+        "src"
       ];
     };
 
