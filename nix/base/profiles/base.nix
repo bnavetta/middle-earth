@@ -68,6 +68,11 @@ in {
   };
 
   time.timeZone = "America/New_York";
+  
+  ###################
+  # Kernel and boot #
+  ###################
+  boot.kernelParams = [ "boot.shell_on_fail" ];
 
   ######################
   # System cleanliness #
