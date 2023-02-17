@@ -178,7 +178,7 @@ in {
 
     (mkIf (cfg.mode
       == "zfs") {
-      boot.supportedFilesystems = [ "zfs" ];
+      boot.supportedFilesystems = ["zfs"];
 
       fileSystems."/nix" = {
         device = "${cfg.zfs.parent}/local/nix";
@@ -237,6 +237,17 @@ in {
           bits = 4096;
         }
       ];
+
+      # For convenience, remember sudo lectures
+      middle-earth.state.persist.sudodb.path = "/var/db/sudo/lectured";
+
+      # Keep system logs / crash dumps / timer state
+      middle-earth.state.persist.systemd.path = "/var/lib/systemd";
+      middle-earth.state.persist.journal.path = "/var/log/journal";
+
+      # Keep NixOS's mapping of user and group IDs
+      middle-earth.state.persist.nixos.path = "/var/lib/nixos";
+
       # This uses environment.persistence directly so we can bind-mount /etc/machine-id as a file
       environment.persistence."${cfg.localRoot}".files = ["/etc/machine-id"];
     }

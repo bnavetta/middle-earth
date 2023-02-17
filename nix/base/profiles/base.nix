@@ -29,6 +29,7 @@ in {
         coreutils
         curl
         dnsutils
+        dua
         exa
         fd
         file
@@ -41,6 +42,7 @@ in {
         lsof
         manix
         nix-info
+        ncdu
         nmap
         pciutils
         ripgrep
@@ -68,13 +70,13 @@ in {
   };
 
   time.timeZone = "America/New_York";
-  
+
   ###################
   # Kernel and boot #
   ###################
-  
+
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = [ "boot.shell_on_fail" ];
+  boot.kernelParams = ["boot.shell_on_fail"];
 
   ######################
   # System cleanliness #

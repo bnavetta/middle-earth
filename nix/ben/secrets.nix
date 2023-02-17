@@ -6,10 +6,10 @@
   groups.admins = ["ben"];
 
   secrets = [
-     {
+    {
       path = "secrets/password.age";
       groups = ["admins"];
-      hosts = ["elessar"];
+      identities = ["elessar"];
     }
   ];
 }

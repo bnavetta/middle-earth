@@ -16,7 +16,6 @@ in {
     age.secrets.ben_password.file = ./secrets/password.age;
 
     users.users.ben = {
-      
       passwordFile = config.age.secrets.ben_password.path;
       description = "Ben";
       isNormalUser = true;
@@ -52,6 +51,7 @@ in {
         ".mozilla"
         ".config/google-chrome"
         ".config/Code"
+        ".local/share/direnv/allow"
       ];
       files = [
         ".zsh_history"
@@ -63,7 +63,7 @@ in {
       imports = [
         homeProfiles.common
         homeProfiles.desktop
-        # base.homeProfiles.state
+        homeProfiles.shell
       ];
     };
 

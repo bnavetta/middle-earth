@@ -9,6 +9,17 @@
 }: let
   inherit (inputs) nixpkgs-wayland nixago;
 
+  # Pass along important desktop environment variables to systemd services and the D-Bus environment. This is needed for pinentry and other background tasks to work.
+  # Adapted from:
+  # - https://gitlab.archlinux.org/bot-test/packages/sway/-/blob/main/50-systemd-user.conf
+  # - https://nixos.wiki/wiki/Sway
+  # - https://github.com/nix-community/home-manager/blob/da72e6fc6b7dc0c3f94edbd310aae7cd95c678b5/modules/services/window-managers/i3-sway/sway.nix#L320
+  updateSystemdEnvironment = pkgs.writeShellScript "update-systemd-environment" ''
+    ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wayfire XDG_SESSION_TYPE
+    # This is implied by the --systemd flag
+    # ${pkgs.systemd}/bin/systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wayfire XDG_SESSION_TYPE
+  '';
+
   # Not using std's nixago support so that this can be defined in terms of Home Manager packages+options
   # Could revisit in the future
   wayfireConfig = nixago.lib.make {
@@ -89,6 +100,8 @@
         # https://github.com/swaywm/swayidle
         # https://github.com/swaywm/swaylock
         idle = "${lib.getExe nixpkgs-wayland.packages.swayidle} before-sleep ${lib.getExe nixpkgs-wayland.packages.swaylock}";
+
+        systemd_env = lib.getExe updateSystemdEnvironment;
 
         # XDG desktop portal
         # Needed by some GTK applications

@@ -18,9 +18,9 @@ in {
           fsType = "vfat";
           neededForBoot = true;
         };
-        
+
         # Ensure the NVMe kernel module is in the initrd
-        boot.initrd.availableKernelModules = [ "nvme" ];
+        boot.initrd.availableKernelModules = ["nvme"];
 
         # Despite the name, this works for Wayland too
         services.xserver.videoDrivers = ["nvidia"];
@@ -34,8 +34,10 @@ in {
         power.ups.enable = true;
         power.ups.mode = "standalone";
         # According to https://github.com/NixOS/nixpkgs/blob/c43f676c938662072772339be6269226c77b51b8/nixos/modules/services/monitoring/ups.nix#L231-L238,
-        # this file is sensitive... TBD what's supposed to be in it
+        # these fils are sensitive... TBD what's supposed to be in them
         environment.etc."nut/upsd.conf".text = "";
+        environment.etc."nut/upsd.users".text = "";
+        environment.etc."nut/upsmon.conf".text = "";
 
         # Colmena setup
         deployment = {

@@ -1,4 +1,11 @@
-{pkgs, ...}: let
+{
+  inputs,
+  cell,
+}: {
+  pkgs,
+  lib,
+  ...
+}: let
 in {
   home.packages = with pkgs; [
     doctl
@@ -13,6 +20,9 @@ in {
 
   programs.git = {
     enable = true;
+
+    userName = "Ben Navetta";
+    userEmail = "ben.navetta@gmail.com";
 
     extraConfig = {
       diff.colorMoved = "default";
@@ -31,8 +41,10 @@ in {
     };
   };
 
-  programs.direnv.enable = true;
-  programs.direnv.nix-direnv.enable = true;
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
 
   programs.zsh = {
     enable = true;

@@ -27,6 +27,8 @@ in
     '';
 
     waylandSession = pkgs.writeShellScriptBin "wayland-session" ''
+      # See WayfireWM/wayfire#213 - hardware cursors are iffy in general / with NVIDIA
+      export WLR_NO_HARDWARE_CURSORS=1
       /run/current-system/systemd/bin/systemctl --user start graphical-session.target
       /run/current-system/systemd/bin/systemd-cat --identifier "$1" "$@"
       /run/current-system/systemd/bin/systemctl --user stop graphical-session.target
@@ -76,8 +78,20 @@ in
       wayland-session sway
     '';
 
+    # xdg-desktop-portal works by exposing a series of D-Bus interfaces
+    # known as portals under a well-known name
+    # (org.freedesktop.portal.Desktop) and object path
+    # (/org/freedesktop/portal/desktop).
+    # The portal interfaces include APIs for file access, opening URIs,
+    # printing and others.
+    services.dbus.enable = true;
+    xdg.portal = {
+      enable = true;
+      wlr.enable = true;
+      # gtk portal needed to make gtk apps happy
+      extraPortals = [pkgs.xdg-desktop-portal-gtk];
+    };
+
     # Silence warnings from LIBGL_DEBUG=verbose about a missing /etc/drirc config file
     environment.etc."drirc".text = ''<driconf></driconf>'';
-
-    # /dev/dri/card0 unavailable according to sway - maybe something missing in kernel?
   }
